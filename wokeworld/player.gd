@@ -65,7 +65,7 @@ func _physics_process(delta):
 		if collision.get_collider().is_in_group("mob"):
 			var mob = collision.get_collider()
 			# we check that we are hitting it from above.
-			if Vector3.UP.dot(collision.get_normal()) > 0.1:
+			if Vector3.UP.dot(collision.get_normal()) > 0.3:
 				# If so, we squash it and bounce.
 				mob.squash()
 				target_velocity.y = bounce_impulse
@@ -78,7 +78,7 @@ func _physics_process(delta):
 
 func die():
 	hit.emit()
-	queue_free()
+	# queue_free()
 
 func _on_mob_detector_body_entered(body: Node3D) -> void:
 	die()

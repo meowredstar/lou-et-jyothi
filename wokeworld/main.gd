@@ -20,4 +20,5 @@ func _on_mob_timer_timeout() -> void:
 
 
 func _on_player_hit() -> void:
-	$MobTimer.stop()
+	pass
+	#$MobTimer.stop()
