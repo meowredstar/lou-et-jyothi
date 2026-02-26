@@ -27,6 +27,7 @@ point_count = 4
 [node name="Main" type="Node" unique_id=441824203]
 script = ExtResource("1_0xm2m")
 mob_scene = ExtResource("2_h2yge")
+nb_mob = 10
 
 [node name="Ground" type="StaticBody3D" parent="." unique_id=1706839525]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
@@ -75,7 +76,7 @@ curve = SubResource("Curve3D_h2yge")
 debug_custom_color = Color(1, 0, 0, 1)
 
 [node name="SpawnLocation" type="PathFollow3D" parent="SpawnPath" unique_id=829987434]
-transform = Transform3D(0.0002567326, 0, -0.99999803, 0, 1, 0, 0.99999803, 0, 0.0002567326, -13.011819, 0, -14.012717)
+transform = Transform3D(0.0002567325, 0, -0.9999977, 0, 1, 0, 0.9999977, 0, 0.0002567325, -13.011819, 0, -14.012717)
 
 [node name="MobTimer" type="Timer" parent="." unique_id=1426009796]
 wait_time = 0.5

@@ -6,10 +6,15 @@
 [sub_resource type="BoxShape3D" id="BoxShape3D_nokgg"]
 size = Vector3(1.6623535, 0.8899231, 2.0640717)
 
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_nokgg"]
+radius = 5.0
+
 [node name="Mob" type="CharacterBody3D" unique_id=147208428 groups=["mob"]]
 collision_layer = 2
 collision_mask = 0
 script = ExtResource("1_nokgg")
+min_speed = 5
+max_speed = 10
 
 [node name="Pivot" type="Node3D" parent="." unique_id=1975721448]
 
@@ -17,10 +22,17 @@ script = ExtResource("1_nokgg")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=749853117]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.033569336, 0.1703949, -0.04625702)
+visible = false
 shape = SubResource("BoxShape3D_nokgg")
 
 [node name="VisibleOnScreenNotifier3D" type="VisibleOnScreenNotifier3D" parent="." unique_id=2054415751]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.28189492)
+visible = false
 aabb = AABB(-1.1669812, -1, -1.6656259, 2.3339624, 2, 3.3312519)
+
+[node name="PreyDetector" type="Area3D" parent="." unique_id=1306049375]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PreyDetector" unique_id=1691300495]
+shape = SubResource("CylinderShape3D_nokgg")
 
 [connection signal="screen_exited" from="VisibleOnScreenNotifier3D" to="." method="_on_visible_on_screen_notifier_3d_screen_exited"]
