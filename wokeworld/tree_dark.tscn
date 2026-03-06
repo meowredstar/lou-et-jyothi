@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://cjhuiwpdg6d7u"]
+
+[ext_resource type="PackedScene" uid="uid://c1k2ti3puw5nh" path="res://art/kenney/tree_default_dark.glb" id="1_ul43r"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ei27h"]
+size = Vector3(0.2529297, 1.6877441, 0.2647705)
+
+[node name="tree dark" type="StaticBody3D" unique_id=1960458145]
+
+[node name="tree_dark" parent="." unique_id=1811715163 instance=ExtResource("1_ul43r")]
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="." unique_id=1155076283]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.022949219, 0.7869873, -0.008483887)
+shape = SubResource("BoxShape3D_ei27h")
