@@ -2,83 +2,116 @@ extends CharacterBody3D
 
 # Emitted when the player was hit by a mob.
 signal hit
-
+@export var min_speed = 10
+# Maximum speed of the mob in meters per second.
+@export var max_speed = 18
 # How fast the player moves in meters per second.
 @export var speed = 14
 # The downward acceleration when in the air, in meters per second squared.
 @export var fall_acceleration = 75
 # Vertical impulse applied to the character upon jumping in meters per second.
-@export var jump_impulse = 20
-# Vertical impulse applied to the character upon bouncing over a mob in
-# meters per second.
-@export var bounce_impulse = 16
+@export var min_turn_time = 1.0
+@export var max_turn_time = 3.0
 
-var target_velocity = Vector3.ZERO
+var current_speed: int
+var area_center: Vector3
+var area_width: Vector3
+var turn_timer = 0.0
+static var counter = 0
 
+
+func choose_random_direction(start_position, ground_center, ground_half_size):
+	print("choose random", start_position, " ", ground_center, " ", ground_half_size, " ", counter)
+	var target = Vector3(
+		randf_range(ground_center.x - ground_half_size.x, ground_center.x + ground_half_size.x),
+		start_position.y,
+		randf_range(ground_center.z - ground_half_size.z, ground_center.z + ground_half_size.z)
+	)
+	print(start_position, " ", target, " ", counter)
+	
+	look_at_from_position(start_position, target, Vector3.UP)
+	velocity = Vector3.FORWARD * current_speed
+	velocity = velocity.rotated(Vector3.UP, rotation.y)
+
+	turn_timer = randf_range(min_turn_time, max_turn_time)
+	
 func _physics_process(delta):
-	# We create a local variable to store the input direction.
-	var direction = Vector3.ZERO
+	turn_timer -= delta
+
+	if turn_timer <= 0:
+		print("physics process")
+		choose_random_direction(global_position, area_center, area_width)
+
+	var fleeing = false
+
+	
+	for body in $MobDetector.get_overlapping_bodies():
+		if body.is_in_group("mob"):
+			fleeing = true
+			velocity = velocity.rotated(Vector3.UP, -rotation.y)
+
+			var flee_direction = global_position - body.global_position
+			flee_direction.y = 0
+
+			look_at(global_position + flee_direction, Vector3.UP)
+
+			velocity = velocity.rotated(Vector3.UP, rotation.y)
+			break
+			
+	if not fleeing:
+		pass
+	if not is_on_floor():
+		velocity.y -= fall_acceleration * delta
+	else:
+		velocity.y = 0
+	
+	move_and_slide()
+	
+	var min_x = area_center.x - area_width.x
+	var max_x = area_center.x + area_width.x
+	var min_z = area_center.z - area_width.z
+	var max_z = area_center.z + area_width.z
+	
+	var touched_edge = false
+	
+	if global_position.x < min_x:
+		global_position.x = min_x
+		touched_edge = true
+	elif global_position.x > max_x:
+		global_position.x = max_x
+		touched_edge = true
+	
+	if global_position.z < min_z:
+		global_position.z = min_z
+		touched_edge = true
+	elif global_position.z > max_z:
+		global_position.z = max_z
+		touched_edge = true
+	
+	if touched_edge: 
+		choose_random_direction(global_position, area_center, area_width)
+
+	global_position.x = clamp(global_position.x, min_x, max_x)
+	global_position.z = clamp(global_position.z, min_z, max_z)
+	
 	
 	# We check for each move input and update the direction accordingly.
-	if Input.is_action_pressed("move_right"):
-		direction.x += 1
-	if Input.is_action_pressed("move_left"):
-		direction.x -= 1
-	if Input.is_action_pressed("move_back"):
-		# Notice how we are working with the vector's x and z axes.
-		# In 3D, the XZ plane is the ground plane.
-		direction.z += 1
-	if Input.is_action_pressed("move_forward"):
-		direction.z -= 1
 	
-	if direction != Vector3.ZERO:
-		direction = direction.normalized()
-		# Setting the basis property will affect the rotation of the node.
-		$Pivot.basis = Basis.looking_at(direction)
 	
-	# Ground Velocity
-	target_velocity.x = direction.x * speed
-	target_velocity.z = direction.z * speed
 	
-	# Vertical Velocity
-	if not is_on_floor(): # If in the air, fall towards the floor. Literally gravity
-		target_velocity.y = target_velocity.y - (fall_acceleration * delta)
-	else:
-		# Jumping
-		if Input.is_action_just_pressed("jump"):
-			target_velocity.y = jump_impulse
 	
-		# Iterate through all collisions that occurred this frame
-	for index in range(get_slide_collision_count()):
-		# We get one of the collisions with the player
-		var collision = get_slide_collision(index)
-	
-		# If there are duplicate collisions with a mob in a single frame
-		# the mob will be deleted after the first collision, and a second call to
-		# get_collider will return null, leading to a null pointer when calling
-		# collision.get_collider().is_in_group("mob").
-		# This block of code prevents processing duplicate collisions.
-		if collision.get_collider() == null:
-			continue
-	
-		# If the collider is with a mob
-		if collision.get_collider().is_in_group("mob"):
-			var mob = collision.get_collider()
-			# we check that we are hitting it from above.
-			if Vector3.UP.dot(collision.get_normal()) > 0.3:
-				# If so, we squash it and bounce.
-				mob.squash()
-				target_velocity.y = bounce_impulse
-				# Prevent further duplicate calls.
-				break
-	
-	# Moving the Character
-	velocity = target_velocity
-	move_and_slide()
+func initialize(start_position, ground_center, ground_half_size):
+	print(start_position, " ", ground_center, " ", ground_half_size, " ", counter)
+	global_position = start_position
+	area_center = ground_center
+	area_width = ground_half_size
+	counter += 1
+	current_speed = randi_range(min_speed, max_speed)
+	choose_random_direction(start_position, ground_center, ground_half_size)
 
 func die():
 	hit.emit()
 	# queue_free()
 
-func _on_mob_detector_body_entered(body: Node3D) -> void:
-	die()
+#func _on_mob_detector_body_entered(body: Node3D) -> void:
+#	die()

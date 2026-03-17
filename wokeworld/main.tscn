@@ -26,8 +26,10 @@ point_count = 4
 
 [node name="Main" type="Node" unique_id=441824203]
 script = ExtResource("1_0xm2m")
+player_scene = ExtResource("1_ig7tw")
 mob_scene = ExtResource("2_h2yge")
-nb_mob = 10
+nb_mob = 12
+nb_player = 2
 
 [node name="Ground" type="StaticBody3D" parent="." unique_id=1706839525]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
@@ -47,9 +49,10 @@ shadow_enabled = true
 [node name="Player" parent="." unique_id=458992254 instance=ExtResource("1_ig7tw")]
 
 [node name="CameraPivot" type="Marker3D" parent="." unique_id=688198783]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1)
 
 [node name="Camera3D" type="Camera3D" parent="CameraPivot" unique_id=1922318119]
-transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 8, 8)
+transform = Transform3D(0.9990831, 0.019479118, -0.03812462, 0.029214308, 0.34077016, 0.9396926, 0.03129611, -0.9399448, 0.33988866, 0, 100, 20)
 projection = 1
 size = 19.0
 
@@ -76,7 +79,7 @@ curve = SubResource("Curve3D_h2yge")
 debug_custom_color = Color(1, 0, 0, 1)
 
 [node name="SpawnLocation" type="PathFollow3D" parent="SpawnPath" unique_id=829987434]
-transform = Transform3D(0.0002567325, 0, -0.9999977, 0, 1, 0, 0.9999977, 0, 0.0002567325, -13.011819, 0, -14.012717)
+transform = Transform3D(0.00025673225, 0, -0.9999966, 0, 1, 0, 0.9999966, 0, 0.00025673225, -13.011819, 0, -14.012717)
 
 [node name="MobTimer" type="Timer" parent="." unique_id=1426009796]
 wait_time = 0.5

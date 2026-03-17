@@ -1,11 +1,28 @@
 extends Node
 
+@export var player_scene: PackedScene
 @export var mob_scene: PackedScene
 @export var nb_mob: int = 100
+@export var nb_player: int = 100
 
 func _ready() -> void:
 	var centre = $Ground/CollisionShape3D.position
 	var width = $Ground/CollisionShape3D.shape.extents
+	#$Player.initialize($Player.position, centre, width)
+	#add_child($Player)
+	for i in range(nb_player):
+		var player = player_scene.instantiate()
+		var spawn_location = Vector3(
+			randf_range(centre.x-width.x,centre.x+width.x), 
+			0, 
+			randf_range(centre.z-width.z,centre.z+width.z)
+			)
+		print("main ", spawn_location, " ", centre, " ", width, " ", i)
+		player.initialize(spawn_location, centre, width)
+		print(player.is_inside_tree())
+		add_child(player)
+		print(player.is_inside_tree())
+		
 	for i in range(nb_mob):
 		var mob = mob_scene.instantiate()
 		var spawn_location = Vector3(
@@ -13,7 +30,6 @@ func _ready() -> void:
 			0, 
 			randf_range(centre.z-width.z,centre.z+width.z)
 			)
-		var player_position = $Player.position
 		mob.initialize(spawn_location, centre, width)
 		add_child(mob)
 
