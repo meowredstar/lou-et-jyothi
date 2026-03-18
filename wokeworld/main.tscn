@@ -46,10 +46,8 @@ mesh = SubResource("BoxMesh_ig7tw")
 transform = Transform3D(1, 0, 0, 0, 0.25881907, 0.9659258, 0, -0.9659258, 0.25881907, 0, 10, 0)
 shadow_enabled = true
 
-[node name="Player" parent="." unique_id=458992254 instance=ExtResource("1_ig7tw")]
-
 [node name="CameraPivot" type="Marker3D" parent="." unique_id=688198783]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.953644, 0, 13.023821)
 
 [node name="Camera3D" type="Camera3D" parent="CameraPivot" unique_id=1922318119]
 transform = Transform3D(0.9990831, 0.019479118, -0.03812462, 0.029214308, 0.34077016, 0.9396926, 0.03129611, -0.9399448, 0.33988866, 0, 100, 20)
@@ -79,11 +77,10 @@ curve = SubResource("Curve3D_h2yge")
 debug_custom_color = Color(1, 0, 0, 1)
 
 [node name="SpawnLocation" type="PathFollow3D" parent="SpawnPath" unique_id=829987434]
-transform = Transform3D(0.00025673225, 0, -0.9999966, 0, 1, 0, 0.9999966, 0, 0.00025673225, -13.011819, 0, -14.012717)
+transform = Transform3D(0.00025673216, 0, -0.99999636, 0, 1, 0, 0.99999636, 0, 0.00025673216, -13.011819, 0, -14.012717)
 
 [node name="MobTimer" type="Timer" parent="." unique_id=1426009796]
 wait_time = 0.5
 autostart = true
 
-[connection signal="hit" from="Player" to="." method="_on_player_hit"]
 [connection signal="timeout" from="MobTimer" to="." method="_on_mob_timer_timeout"]

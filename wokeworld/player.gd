@@ -21,15 +21,14 @@ static var counter = 0
 
 
 func choose_random_direction(start_position, ground_center, ground_half_size):
-	print("choose random", start_position, " ", ground_center, " ", ground_half_size, " ", counter)
 	var target = Vector3(
 		randf_range(ground_center.x - ground_half_size.x, ground_center.x + ground_half_size.x),
 		start_position.y,
 		randf_range(ground_center.z - ground_half_size.z, ground_center.z + ground_half_size.z)
 	)
-	print(start_position, " ", target, " ", counter)
 	
-	look_at_from_position(start_position, target, Vector3.UP)
+	#look_at_from_position(start_position, target, Vector3.UP)
+	look_at(target, Vector3.UP)
 	velocity = Vector3.FORWARD * current_speed
 	velocity = velocity.rotated(Vector3.UP, rotation.y)
 
@@ -39,7 +38,6 @@ func _physics_process(delta):
 	turn_timer -= delta
 
 	if turn_timer <= 0:
-		print("physics process")
 		choose_random_direction(global_position, area_center, area_width)
 
 	var fleeing = false
@@ -101,7 +99,6 @@ func _physics_process(delta):
 	
 	
 func initialize(start_position, ground_center, ground_half_size):
-	print(start_position, " ", ground_center, " ", ground_half_size, " ", counter)
 	global_position = start_position
 	area_center = ground_center
 	area_width = ground_half_size

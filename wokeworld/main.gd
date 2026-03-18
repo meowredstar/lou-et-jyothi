@@ -17,11 +17,8 @@ func _ready() -> void:
 			0, 
 			randf_range(centre.z-width.z,centre.z+width.z)
 			)
-		print("main ", spawn_location, " ", centre, " ", width, " ", i)
-		player.initialize(spawn_location, centre, width)
-		print(player.is_inside_tree())
 		add_child(player)
-		print(player.is_inside_tree())
+		player.initialize(spawn_location, centre, width)
 		
 	for i in range(nb_mob):
 		var mob = mob_scene.instantiate()
