@@ -3,12 +3,13 @@
 [ext_resource type="PackedScene" uid="uid://c1k2ti3puw5nh" path="res://art/kenney/tree_default_dark.glb" id="1_ul43r"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ei27h"]
-size = Vector3(0.2529297, 1.6877441, 0.2647705)
+size = Vector3(0.95895386, 4.2424316, 0.89341736)
 
 [node name="TreeDark" type="StaticBody3D" unique_id=1960458145]
 
 [node name="tree_dark" parent="." unique_id=1811715163 instance=ExtResource("1_ul43r")]
+transform = Transform3D(5.372043, 0, 0, 0, 2.6516914, 0, 0, 0, 4.586445, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1155076283]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.022949219, 0.7869873, -0.008483887)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0061798096, 2.064331, 0.031013489)
 shape = SubResource("BoxShape3D_ei27h")

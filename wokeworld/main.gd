@@ -2,8 +2,10 @@ extends Node
 
 @export var player_scene: PackedScene
 @export var mob_scene: PackedScene
+@export var tree_scene: PackedScene
 @export var nb_mob: int = 100
 @export var nb_player: int = 100
+@export var nb_tree: int = 10
 
 func _ready() -> void:
 	var centre = $Ground/CollisionShape3D.position
@@ -29,6 +31,15 @@ func _ready() -> void:
 			)
 		mob.initialize(spawn_location, centre, width)
 		add_child(mob)
+		
+	for i in range(nb_tree):
+		var tree = tree_scene.instantiate()
+		add_child(tree)
+		tree.set_global_position(Vector3(
+		randf_range(centre.x-width.x,centre.x+width.x), 
+		0, 
+		randf_range(centre.z-width.z,centre.z+width.z)
+		))
 
 #func _on_mob_timer_timeout() -> void:
 	## Create a new instance of the Mob scene.
