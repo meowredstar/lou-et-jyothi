@@ -6,6 +6,8 @@
 size = Vector3(0.95895386, 4.2424316, 0.89341736)
 
 [node name="TreeDark" type="StaticBody3D" unique_id=1960458145]
+collision_layer = 4
+collision_mask = 0
 
 [node name="tree_dark" parent="." unique_id=1811715163 instance=ExtResource("1_ul43r")]
 transform = Transform3D(5.372043, 0, 0, 0, 2.6516914, 0, 0, 0, 4.586445, 0, 0, 0)

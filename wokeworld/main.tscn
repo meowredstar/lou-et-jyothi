@@ -4,12 +4,13 @@
 [ext_resource type="PackedScene" uid="uid://ceuu150fmggvr" path="res://player.tscn" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://defdm2qdva75q" path="res://mob.tscn" id="2_h2yge"]
 [ext_resource type="PackedScene" uid="uid://o4resmt5mpdy" path="res://tree.tscn" id="4_1bvp3"]
+[ext_resource type="Script" uid="uid://cgyou8lypveab" path="res://camera_3d.gd" id="5_lquwl"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_7dm0k"]
-size = Vector3(100, 2, 100)
+size = Vector3(500, 2, 500)
 
 [sub_resource type="BoxMesh" id="BoxMesh_ig7tw"]
-size = Vector3(100, 2, 100)
+size = Vector3(500, 2, 500)
 
 [node name="Main" type="Node" unique_id=441824203]
 script = ExtResource("1_0xm2m")
@@ -31,16 +32,17 @@ shape = SubResource("BoxShape3D_7dm0k")
 mesh = SubResource("BoxMesh_ig7tw")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1000984621]
-transform = Transform3D(1, 0, 0, 0, 0.25881907, 0.9659258, 0, -0.9659258, 0.25881907, 0, 10, 0)
+transform = Transform3D(1, 0, 0, 0, 0.25881907, 0.9659258, 0, -0.9659258, 0.25881907, 350, 256, 297)
 shadow_enabled = true
 
 [node name="CameraPivot" type="Marker3D" parent="." unique_id=688198783]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.953644, 0, 13.023821)
 
 [node name="Camera3D" type="Camera3D" parent="CameraPivot" unique_id=1922318119]
-transform = Transform3D(1, 0, 0, 0, 0.5693082, 0.8221243, 0, -0.8221243, 0.5693082, 5.57222, 57.178677, 43.32001)
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.8660254, 0, -0.8660254, 0.5, 5.57222, 326.17868, 202.32002)
+fov = 40.1
 size = 100.0
-far = 154.33
+script = ExtResource("5_lquwl")
 
 [node name="MobTimer" type="Timer" parent="." unique_id=1426009796]
 wait_time = 0.5

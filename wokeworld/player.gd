@@ -112,3 +112,7 @@ func die():
 
 #func _on_mob_detector_body_entered(body: Node3D) -> void:
 #	die()
+
+
+func _on_life_expectancy_timeout() -> void:
+	queue_free()

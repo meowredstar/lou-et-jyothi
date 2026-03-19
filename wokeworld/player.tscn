@@ -33,4 +33,9 @@ monitorable = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55667496, 0)
 shape = SubResource("CylinderShape3D_onrkg")
 
+[node name="LifeExpectancy" type="Timer" parent="." unique_id=1771713200]
+wait_time = 60.0
+autostart = true
+
 [connection signal="body_entered" from="MobDetector" to="." method="_on_mob_detector_body_entered"]
+[connection signal="timeout" from="LifeExpectancy" to="." method="_on_life_expectancy_timeout"]

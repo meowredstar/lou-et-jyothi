@@ -103,10 +103,10 @@ func initialize(start_position, area_cente, area_widt):
 	velocity = velocity.rotated(Vector3.UP, rotation.y)
 	#print("après : ", velocity)
 
-func _on_visible_on_screen_notifier_3d_screen_exited() -> void:
-	pass
-	#queue_free()
-
 func squash():
 	squashed.emit()
 	#queue_free()
+
+
+func _on_life_expectancy_timeout() -> void:
+	queue_free()
