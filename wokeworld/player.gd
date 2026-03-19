@@ -13,11 +13,20 @@ signal hit
 @export var min_turn_time = 1.0
 @export var max_turn_time = 3.0
 
+@export var reproduction_chance := 0.1
+@export var reproduction_interval := 5.0
+
+var reproduction_timer := 0.0
+
 var current_speed: int
 var area_center: Vector3
 var area_width: Vector3
 var turn_timer = 0.0
 static var counter = 0
+
+@export var reproduction_min_age := 20.0 
+
+var age := 0.0
 
 
 func choose_random_direction(start_position, ground_center, ground_half_size):
@@ -33,8 +42,21 @@ func choose_random_direction(start_position, ground_center, ground_half_size):
 	velocity = velocity.rotated(Vector3.UP, rotation.y)
 
 	turn_timer = randf_range(min_turn_time, max_turn_time)
+
+signal reproduce_player(position)
 	
 func _physics_process(delta):
+	
+	age += delta
+	
+	
+	reproduction_timer -= delta
+	
+	if reproduction_timer <= 0.0 :
+		reproduction_timer = reproduction_interval
+		if randf() <= reproduction_chance and age < reproduction_min_age:
+			reproduce_player.emit(global_position)
+			
 	turn_timer -= delta
 
 	if turn_timer <= 0:

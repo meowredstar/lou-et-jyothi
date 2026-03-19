@@ -8,14 +8,24 @@ extends CharacterBody3D
 @export var min_turn_time = 1.0
 @export var max_turn_time = 3.0
 
+@onready var starvation_timer: Timer = $Starvation
+
+@export var reproduction_chance := 0.1
+@export var reproduction_interval := 5.0
+
+var reproduction_timer := 0.0
+
 var turn_timer = 0.0
 var area_center
 var area_width
 var current_speed
 
+@export var reproduction_min_age := 10.0
+var age := 0.0
+
 
 # Emitted when the player jumped on the mob.
-signal squashed
+#signal squashed
 
 func choose_random_direction():
 	var target = Vector3(
@@ -30,7 +40,19 @@ func choose_random_direction():
 
 	turn_timer = randf_range(min_turn_time, max_turn_time)
 
+signal reproduce_mob(position)
+
+
 func _physics_process(_delta):
+	
+	age += _delta
+	
+	reproduction_timer -= _delta
+
+	if reproduction_timer <= 0.0:
+		reproduction_timer = reproduction_interval
+		if randf() < reproduction_chance and age < reproduction_min_age:
+			reproduce_mob.emit(global_position)
 	
 	turn_timer -= _delta
 
@@ -40,8 +62,15 @@ func _physics_process(_delta):
 	for body in $PreyDetector.get_overlapping_bodies():
 		if body.is_in_group("prey") :
 			velocity = velocity.rotated(Vector3.UP, -rotation.y)
-			look_at(body.position)
+			var target = body.global_position
+			target.y = global_position.y
+			look_at(target, Vector3.UP)
 			velocity = velocity.rotated(Vector3.UP, rotation.y)
+			
+			if global_position.distance_to(body.global_position) < 2:
+				eat_prey(body)
+
+			
 			break
 	move_and_slide()
 	
@@ -103,9 +132,17 @@ func initialize(start_position, area_cente, area_widt):
 	velocity = velocity.rotated(Vector3.UP, rotation.y)
 	#print("après : ", velocity)
 
-func squash():
-	squashed.emit()
-	#queue_free()
+func eat_prey(prey):
+	if prey != null :
+		prey.queue_free()
+	starvation_timer.start()
+
+func _on_starvation_timeout() -> void:
+	queue_free()
+	
+#func squash():
+	#squashed.emit()
+	##queue_free()
 
 
 func _on_life_expectancy_timeout() -> void:

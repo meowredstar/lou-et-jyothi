@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://ceuu150fmggvr" path="res://player.tscn" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://defdm2qdva75q" path="res://mob.tscn" id="2_h2yge"]
 [ext_resource type="PackedScene" uid="uid://o4resmt5mpdy" path="res://tree.tscn" id="4_1bvp3"]
-[ext_resource type="Script" uid="uid://cgyou8lypveab" path="res://camera_3d.gd" id="5_lquwl"]
+[ext_resource type="Script" path="res://camera_3d.gd" id="5_lquwl"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_7dm0k"]
 size = Vector3(500, 2, 500)
@@ -17,8 +17,8 @@ script = ExtResource("1_0xm2m")
 player_scene = ExtResource("1_ig7tw")
 mob_scene = ExtResource("2_h2yge")
 tree_scene = ExtResource("4_1bvp3")
-nb_mob = 12
-nb_player = 2
+nb_mob = 10
+nb_player = 10
 
 [node name="Ground" type="StaticBody3D" parent="." unique_id=1706839525]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
@@ -40,7 +40,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.953644, 0, 13.023821)
 
 [node name="Camera3D" type="Camera3D" parent="CameraPivot" unique_id=1922318119]
 transform = Transform3D(1, 0, 0, 0, 0.5, 0.8660254, 0, -0.8660254, 0.5, 5.57222, 326.17868, 202.32002)
-fov = 40.1
+fov = 26.2
 size = 100.0
 script = ExtResource("5_lquwl")
 

@@ -7,6 +7,32 @@ extends Node
 @export var nb_player: int = 100
 @export var nb_tree: int = 10
 
+
+
+
+func _on_mob_reproduce_mob(position):
+	var centre = $Ground/CollisionShape3D.position
+	var width = $Ground/CollisionShape3D.shape.extents
+	var mob = mob_scene.instantiate()
+	add_child(mob)
+
+	var offset = Vector3(randf_range(-1,1), 0, randf_range(-1,1))
+	mob.initialize(position + offset, centre, width)
+
+	mob.reproduce_mob.connect(_on_mob_reproduce_mob)
+
+func _on_player_reproduce_player(position):
+	var centre = $Ground/CollisionShape3D.position
+	var width = $Ground/CollisionShape3D.shape.extents
+	var player = player_scene.instantiate()
+	add_child(player)
+
+	var offset = Vector3(randf_range(-1,1), 0, randf_range(-1,1))
+	player.initialize(position + offset, centre, width)
+
+	player.reproduce_player.connect(_on_player_reproduce_player)
+
+
 func _ready() -> void:
 	var centre = $Ground/CollisionShape3D.position
 	var width = $Ground/CollisionShape3D.shape.extents
@@ -19,6 +45,7 @@ func _ready() -> void:
 			0, 
 			randf_range(centre.z-width.z,centre.z+width.z)
 			)
+		player.reproduce_player.connect(_on_player_reproduce_player)
 		add_child(player)
 		player.initialize(spawn_location, centre, width)
 		
@@ -29,8 +56,9 @@ func _ready() -> void:
 			0, 
 			randf_range(centre.z-width.z,centre.z+width.z)
 			)
-		mob.initialize(spawn_location, centre, width)
+		mob.reproduce_mob.connect(_on_mob_reproduce_mob)
 		add_child(mob)
+		mob.initialize(spawn_location, centre, width)
 		
 	for i in range(nb_tree):
 		var tree = tree_scene.instantiate()

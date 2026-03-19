@@ -16,7 +16,7 @@ script = ExtResource("1_onrkg")
 
 [node name="Pivot" type="Node3D" parent="." unique_id=1160553204]
 
-[node name="Character" parent="Pivot" unique_id=1229554666 instance=ExtResource("1_4flbx")]
+[node name="Character" parent="Pivot" unique_id=601728885 instance=ExtResource("1_4flbx")]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=223330947]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.012110293, 1, -0.02020201)
