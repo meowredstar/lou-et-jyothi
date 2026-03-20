@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://ceuu150fmggvr" path="res://player.tscn" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://defdm2qdva75q" path="res://mob.tscn" id="2_h2yge"]
 [ext_resource type="PackedScene" uid="uid://o4resmt5mpdy" path="res://tree.tscn" id="4_1bvp3"]
-[ext_resource type="Script" path="res://camera_3d.gd" id="5_lquwl"]
+[ext_resource type="Script" uid="uid://cgyou8lypveab" path="res://camera_3d.gd" id="5_lquwl"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_7dm0k"]
 size = Vector3(500, 2, 500)

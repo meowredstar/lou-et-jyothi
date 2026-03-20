@@ -21,7 +21,7 @@ func _process(_zdelta: float) -> void:
 	if Input.is_action_pressed("move_down"):
 		print("test")                   
 		position.y -= speed
-		return
+		#return
 	if Input.is_action_pressed("move_up"):
 		print("test up")
 		position.y += speed
@@ -34,3 +34,8 @@ func _process(_zdelta: float) -> void:
 		rotate_y(rotational_speed)
 	if Input.is_action_pressed("rotate_right"):
 		rotate_y(-rotational_speed)
+	if Input.is_action_pressed("zoom_in"):
+		position += -transform.basis.z
+	if Input.is_action_pressed("zoom_out"):
+		position -= -transform.basis.z
+		
