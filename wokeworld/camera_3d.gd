@@ -9,7 +9,7 @@ func _ready() -> void:
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_zdelta: float) -> void:
+func _process(_delta: float) -> void:
 	if Input.is_action_pressed("move_forward"):
 		position.z -= speed
 	if Input.is_action_pressed("move_back"):
@@ -18,12 +18,10 @@ func _process(_zdelta: float) -> void:
 		position.x -= speed
 	if Input.is_action_pressed("move_right"):
 		position.x += speed
-	if Input.is_action_pressed("move_down"):
-		print("test")                   
+	if Input.is_action_pressed("move_down"):   
 		position.y -= speed
 		#return
 	if Input.is_action_pressed("move_up"):
-		print("test up")
 		position.y += speed
 	if Input.is_action_pressed("rotate_up"):
 		# TODO regarder si pas moyen de faire un truc avec look_at
