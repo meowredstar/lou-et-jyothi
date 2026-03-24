@@ -35,8 +35,16 @@ func _on_player_reproduce_player(position):
 
 
 func _ready() -> void:
-	var centre = $Ground/CollisionShape3D.position
-	var width = $Ground/CollisionShape3D.shape.extents
+	var centre = Vector3(0, 0, 0)
+	var width = Vector3(250, 0, 250)
+
+	#var centre = $Ground/CollisionShape3D.position
+	#var width = $Ground/CollisionShape3D.shape.extents
+	var start_pos = $GridMap.local_to_map(centre-width)
+	var end_pos = $GridMap.local_to_map(centre+width)
+	for x in range(start_pos.x, end_pos.x + 1):
+		for z in range(start_pos.z, end_pos.z + 1):
+			$GridMap.set_cell_item(Vector3i(x, 0, z), randi_range(0, 10))
 	#$Player.initialize($Player.position, centre, width)
 	#add_child($Player)
 	var players = []
@@ -44,10 +52,10 @@ func _ready() -> void:
 		var player = player_scene.instantiate()
 		var spawn_location = Vector3(
 			randf_range(centre.x-width.x,centre.x+width.x), 
-			0, 
+			10, 
 			randf_range(centre.z-width.z,centre.z+width.z)
 			)
-		player.reproduce_player.connect(_on_player_reproduce_player)
+		#player.reproduce_player.connect(_on_player_reproduce_player)
 		add_child(player)
 		player.initialize(spawn_location, centre, width)
 		players.append(player)
@@ -61,10 +69,10 @@ func _ready() -> void:
 		var mob = mob_scene.instantiate()
 		var spawn_location = Vector3(
 			randf_range(centre.x-width.x,centre.x+width.x), 
-			0, 
+			10, 
 			randf_range(centre.z-width.z,centre.z+width.z)
 			)
-		mob.reproduce_mob.connect(_on_mob_reproduce_mob)
+		#mob.reproduce_mob.connect(_on_mob_reproduce_mob)
 		add_child(mob)
 		mob.initialize(spawn_location, centre, width)
 		
@@ -73,7 +81,7 @@ func _ready() -> void:
 		add_child(tree)
 		tree.set_global_position(Vector3(
 		randf_range(centre.x-width.x,centre.x+width.x), 
-		0, 
+		10, 
 		randf_range(centre.z-width.z,centre.z+width.z)
 		))
 

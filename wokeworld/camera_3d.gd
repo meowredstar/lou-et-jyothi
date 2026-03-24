@@ -20,7 +20,7 @@ func _process(_delta: float) -> void:
 		position.x += speed
 	if Input.is_action_pressed("move_down"):   
 		position.y -= speed
-		#return
+		return
 	if Input.is_action_pressed("move_up"):
 		position.y += speed
 	if Input.is_action_pressed("rotate_up"):

@@ -5,12 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://defdm2qdva75q" path="res://mob.tscn" id="2_h2yge"]
 [ext_resource type="PackedScene" uid="uid://o4resmt5mpdy" path="res://tree.tscn" id="4_1bvp3"]
 [ext_resource type="Script" uid="uid://cgyou8lypveab" path="res://camera_3d.gd" id="5_lquwl"]
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_7dm0k"]
-size = Vector3(500, 2, 500)
-
-[sub_resource type="BoxMesh" id="BoxMesh_ig7tw"]
-size = Vector3(500, 2, 500)
+[ext_resource type="MeshLibrary" uid="uid://c8870b1skr4ks" path="res://mesh_library.tres" id="6_7mycd"]
 
 [node name="Main" type="Node" unique_id=441824203]
 script = ExtResource("1_0xm2m")
@@ -19,17 +14,6 @@ mob_scene = ExtResource("2_h2yge")
 tree_scene = ExtResource("4_1bvp3")
 nb_mob = 10
 nb_player = 10
-
-[node name="Ground" type="StaticBody3D" parent="." unique_id=1706839525]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
-collision_layer = 4
-collision_mask = 0
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground" unique_id=2085893167]
-shape = SubResource("BoxShape3D_7dm0k")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground/CollisionShape3D" unique_id=1988300852]
-mesh = SubResource("BoxMesh_ig7tw")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1000984621]
 transform = Transform3D(1, 0, 0, 0, 0.25881907, 0.9659258, 0, -0.9659258, 0.25881907, 350, 256, 297)
@@ -47,5 +31,14 @@ script = ExtResource("5_lquwl")
 [node name="MobTimer" type="Timer" parent="." unique_id=1426009796]
 wait_time = 0.5
 autostart = true
+
+[node name="GridMap" type="GridMap" parent="." unique_id=227701796]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+mesh_library = ExtResource("6_7mycd")
+cell_size = Vector3(4, 4, 4)
+cell_octant_size = 64
+cell_scale = 4.0
+collision_layer = 4
+collision_mask = 0
 
 [connection signal="timeout" from="MobTimer" to="." method="_on_mob_timer_timeout"]
