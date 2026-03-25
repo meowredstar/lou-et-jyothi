@@ -44,7 +44,7 @@ func _ready() -> void:
 	var end_pos = $GridMap.local_to_map(centre+width)
 	for x in range(start_pos.x, end_pos.x + 1):
 		for z in range(start_pos.z, end_pos.z + 1):
-			$GridMap.set_cell_item(Vector3i(x, 0, z), randi_range(0, 10))
+			$GridMap.set_cell_item(Vector3i(x, 0, z), randi_range(0, 20))
 	#$Player.initialize($Player.position, centre, width)
 	#add_child($Player)
 	var players = []
