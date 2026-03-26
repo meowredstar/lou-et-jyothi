@@ -36,7 +36,11 @@ func _ready() -> void:
 	var noise = FastNoiseLite.new()
 	noise.seed = randi_range(10, 99999)
 	noise.noise_type = FastNoiseLite.TYPE_PERLIN
-	print(noise.get_noise_3d(0.01, 0.0, 0.0))
+	for x in range(10):
+		for y in range(10):
+			for z in range(10):
+				print(((noise.get_noise_3d(x, y, z)+1.0)/2.0)*3.0)
+	
 
 	#var centre = $Ground/CollisionShape3D.position
 	#var width = $Ground/CollisionShape3D.shape.extents
