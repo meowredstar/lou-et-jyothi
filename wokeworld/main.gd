@@ -35,6 +35,10 @@ func _on_player_reproduce_player(position):
 
 
 func _ready() -> void:
+	var noise = FastNoiseLite.new()
+	noise.seed = randi_range(10, 99999)
+	noise.noise_type = FastNoiseLite.TYPE_PERLIN
+	print(noise.get_noise_3d(0.01, 0.0, 0.0))
 	var centre = Vector3(0, 0, 0)
 	var width = Vector3(250, 0, 250)
 
@@ -44,7 +48,7 @@ func _ready() -> void:
 	var end_pos = $GridMap.local_to_map(centre+width)
 	for x in range(start_pos.x, end_pos.x + 1):
 		for z in range(start_pos.z, end_pos.z + 1):
-			$GridMap.set_cell_item(Vector3i(x, 0, z), randi_range(0, 20))
+			$GridMap.set_cell_item(Vector3i(x, 0, z), randi_range(0, 22))
 	#$Player.initialize($Player.position, centre, width)
 	#add_child($Player)
 	var players = []
