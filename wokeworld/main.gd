@@ -6,14 +6,14 @@ extends Node
 @export var nb_mob: int = 100
 @export var nb_player: int = 100
 @export var nb_tree: int = 10
-
 @export var initial_infected_prey := 5 #permet de mettre en place le modèle SIR
 
+# terrain dimension
+var centre = Vector3(0, 0, 0)
+var width = Vector3(250, 0, 250)
 
 
 func _on_mob_reproduce_mob(position):
-	var centre = $Ground/CollisionShape3D.position
-	var width = $Ground/CollisionShape3D.shape.extents
 	var mob = mob_scene.instantiate()
 	add_child(mob)
 
@@ -23,8 +23,6 @@ func _on_mob_reproduce_mob(position):
 	mob.reproduce_mob.connect(_on_mob_reproduce_mob)
 
 func _on_player_reproduce_player(position):
-	var centre = $Ground/CollisionShape3D.position
-	var width = $Ground/CollisionShape3D.shape.extents
 	var player = player_scene.instantiate()
 	add_child(player)
 
@@ -39,8 +37,6 @@ func _ready() -> void:
 	noise.seed = randi_range(10, 99999)
 	noise.noise_type = FastNoiseLite.TYPE_PERLIN
 	print(noise.get_noise_3d(0.01, 0.0, 0.0))
-	var centre = Vector3(0, 0, 0)
-	var width = Vector3(250, 0, 250)
 
 	#var centre = $Ground/CollisionShape3D.position
 	#var width = $Ground/CollisionShape3D.shape.extents
@@ -59,7 +55,7 @@ func _ready() -> void:
 			10, 
 			randf_range(centre.z-width.z,centre.z+width.z)
 			)
-		#player.reproduce_player.connect(_on_player_reproduce_player)
+		player.reproduce_player.connect(_on_player_reproduce_player)
 		add_child(player)
 		player.initialize(spawn_location, centre, width)
 		players.append(player)
@@ -76,7 +72,7 @@ func _ready() -> void:
 			10, 
 			randf_range(centre.z-width.z,centre.z+width.z)
 			)
-		#mob.reproduce_mob.connect(_on_mob_reproduce_mob)
+		mob.reproduce_mob.connect(_on_mob_reproduce_mob)
 		add_child(mob)
 		mob.initialize(spawn_location, centre, width)
 		

@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://defdm2qdva75q" path="res://mob.tscn" id="2_h2yge"]
 [ext_resource type="PackedScene" uid="uid://o4resmt5mpdy" path="res://tree.tscn" id="4_1bvp3"]
 [ext_resource type="Script" uid="uid://cgyou8lypveab" path="res://camera_3d.gd" id="5_lquwl"]
-[ext_resource type="MeshLibrary" uid="uid://c8870b1skr4ks" path="res://mesh_library.tres" id="6_7mycd"]
+[ext_resource type="MeshLibrary" uid="uid://bog6aa5sjolt0" path="res://mesh_library.tres" id="6_7mycd"]
 
 [node name="Main" type="Node" unique_id=441824203]
 script = ExtResource("1_0xm2m")
