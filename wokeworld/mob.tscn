@@ -1,13 +1,13 @@
 [gd_scene format=3 uid="uid://defdm2qdva75q"]
 
-[ext_resource type="PackedScene" uid="uid://bicorb7we351t" path="res://art/mob.glb" id="1_dy6sc"]
 [ext_resource type="Script" uid="uid://c5wp01kn08qxe" path="res://mob.gd" id="1_nokgg"]
+[ext_resource type="PackedScene" uid="uid://dqpt1p8o2si8s" path="res://art/squeletteprolo.glb" id="2_nokgg"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_nokgg"]
 size = Vector3(1.6623535, 0.8899231, 2.0640717)
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_nokgg"]
-radius = 5.0
+radius = 11.797363
 
 [node name="Mob" type="CharacterBody3D" unique_id=147208428 groups=["mob"]]
 collision_layer = 2
@@ -17,7 +17,8 @@ max_speed = 20
 
 [node name="Pivot" type="Node3D" parent="." unique_id=1975721448]
 
-[node name="Character" parent="Pivot" unique_id=613918207 instance=ExtResource("1_dy6sc")]
+[node name="squeletteprolo" parent="Pivot" unique_id=1880569550 instance=ExtResource("2_nokgg")]
+transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=749853117]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.033569336, 0.1703949, -0.04625702)
