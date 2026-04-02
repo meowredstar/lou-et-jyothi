@@ -5,6 +5,25 @@ extends CharacterBody3D
 # Maximum speed of the mob in meters per second.
 @export var max_speed = 18
 
+@onready var top = $StatusMarker/CSGCylinder3D
+@onready var bottom = $StatusMarker/CSGCylinder3D2
+
+func set_color(color: Color):
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color
+
+	top.material = mat
+	bottom.material = mat
+	
+func update_visual():
+	match health_state:
+		HealthState.HEALTHY:
+			set_color(Color(0.2, 1, 0.2)) # vert
+		HealthState.INFECTED:
+			set_color(Color(1, 0.2, 0.2)) # rouge
+		HealthState.RESISTANT:
+			set_color(Color(0.5, 0.5, 0.5)) # gris
+
 @export var min_turn_time = 1.0
 @export var max_turn_time = 3.0
 
@@ -23,9 +42,57 @@ var current_speed
 @export var reproduction_min_age := 10.0
 var age := 0.0
 
+enum HealthState { #les divers états SIR
+	HEALTHY,
+	INFECTED,
+	RESISTANT
+}
+var health_state = HealthState.HEALTHY
+var infection_timer := 0.0
+@export var infection_duration := 100
+#@export var infection_chance := 1
+@export var death_probability := 0.3
+
 
 # Emitted when the player jumped on the mob.
 #signal squashed
+
+
+func infect():
+	# se s'infecte que si sain
+	if health_state == HealthState.HEALTHY:
+		health_state = HealthState.INFECTED
+		infection_timer = infection_duration
+		update_visual()
+
+		# (optionnel) feedback visuel
+		#$MeshInstance3D.modulate = Color(1, 0.3, 0.3)
+
+func update_infection(delta):
+	if health_state != HealthState.INFECTED:
+		return
+
+	infection_timer -= delta
+
+	if infection_timer <= 0.0:
+		if randf() < death_probability:
+			queue_free()
+		else:
+			health_state = HealthState.RESISTANT
+			update_visual()
+
+func infect_predators_on_contact():
+	if health_state != HealthState.INFECTED:
+		return
+
+	for body in get_tree().get_nodes_in_group("mob"):
+		if body == self:
+			continue
+		if body.health_state != HealthState.HEALTHY:
+			continue
+
+		if global_position.distance_to(body.global_position) < 4.0:
+				body.infect()
 
 func choose_random_direction():
 	var target = Vector3(
@@ -43,15 +110,19 @@ func choose_random_direction():
 signal reproduce_mob(position)
 
 
+
 func _physics_process(_delta):
 	
 	age += _delta
 	
+	update_infection(_delta)
+	infect_predators_on_contact()
+
 	reproduction_timer -= _delta
 
 	if reproduction_timer <= 0.0:
 		reproduction_timer = reproduction_interval
-		if randf() < reproduction_chance and age < reproduction_min_age:
+		if randf() < reproduction_chance and age >= reproduction_min_age:
 			reproduce_mob.emit(global_position)
 	
 	turn_timer -= _delta
@@ -67,7 +138,7 @@ func _physics_process(_delta):
 			look_at(target, Vector3.UP)
 			velocity = velocity.rotated(Vector3.UP, rotation.y)
 			
-			if global_position.distance_to(body.global_position) < 2:
+			if global_position.distance_to(body.global_position) < 3:
 				eat_prey(body)
 
 			
@@ -108,16 +179,26 @@ func initialize(start_position, area_cente, area_widt):
 	area_width = area_widt
 	# We position the mob by placing it at start_position
 	# and rotate it towards player_position, so it looks at the player.
-	look_at_from_position(start_position, Vector3(
-		Vector3(
-			randf_range(area_center.x-area_width.x,area_center.x+area_width.x), 
-			0, 
-			randf_range(area_center.z-area_width.z,area_center.z+area_width.z)
-			)
-	), Vector3.UP)
+	
+	var target = Vector3(
+		randf_range(area_center.x - area_width.x, area_center.x + area_width.x),
+		start_position.y,
+		randf_range(area_center.z - area_width.z, area_center.z + area_width.z)
+	)
+
+	look_at_from_position(start_position, target, Vector3.UP)
+	#look_at_from_position(start_position, Vector3(
+		#Vector3(
+			#randf_range(area_center.x-area_width.x,area_center.x+area_width.x), 
+			#0, 
+			#randf_range(area_center.z-area_width.z,area_center.z+area_width.z)
+			#)
+	#), Vector3.UP)
 	
 	velocity = Vector3.FORWARD * velocity.length()
 	velocity = velocity.rotated(Vector3.UP, rotation.y)
+	
+	update_visual()
 	# Rotate this mob randomly within range of -45 and +45 degrees,
 	# so that it doesn't move directly towards the player.
 	# rotate_y(randf_range(-PI / 4, PI / 4))
@@ -134,6 +215,9 @@ func initialize(start_position, area_cente, area_widt):
 
 func eat_prey(prey):
 	if prey != null :
+		#contamination par la proie
+		if prey.has_method("is_infected_prey") and prey.is_infected_prey(): # probabilité de transmission
+				infect()
 		prey.queue_free()
 	starvation_timer.start()
 

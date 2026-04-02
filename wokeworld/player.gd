@@ -1,5 +1,29 @@
 extends CharacterBody3D
 
+#j'ajoute un état infecté (pas mortel) aux proies
+@export var infected := false
+
+#récupérer le petit losange SIMS
+@onready var top = $StatusMarker/CSGCylinder3D
+@onready var bottom = $StatusMarker/CSGCylinder3D2
+
+#changer sa couleur
+func set_color(color: Color):
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color
+
+	top.material = mat
+	bottom.material = mat
+	
+func update_visual():
+	if infected:
+		set_color(Color(1, 0.2, 0.2)) # rouge
+	else:
+		set_color(Color(0.2, 1, 0.2)) # vert
+
+func is_infected_prey() -> bool:
+	return infected
+	
 # Emitted when the player was hit by a mob.
 signal hit
 @export var min_speed = 10
@@ -54,7 +78,7 @@ func _physics_process(delta):
 	
 	if reproduction_timer <= 0.0 :
 		reproduction_timer = reproduction_interval
-		if randf() <= reproduction_chance and age < reproduction_min_age:
+		if randf() <= reproduction_chance and age >= reproduction_min_age:
 			reproduce_player.emit(global_position)
 			
 	turn_timer -= delta
@@ -121,6 +145,7 @@ func _physics_process(delta):
 	
 	
 func initialize(start_position, ground_center, ground_half_size):
+	update_visual()
 	global_position = start_position
 	area_center = ground_center
 	area_width = ground_half_size

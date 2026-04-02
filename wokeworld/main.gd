@@ -7,6 +7,7 @@ extends Node
 @export var nb_player: int = 100
 @export var nb_tree: int = 10
 
+@export var initial_infected_prey := 5 #permet de mettre en place le modèle SIR
 
 
 
@@ -38,6 +39,7 @@ func _ready() -> void:
 	var width = $Ground/CollisionShape3D.shape.extents
 	#$Player.initialize($Player.position, centre, width)
 	#add_child($Player)
+	var players = []
 	for i in range(nb_player):
 		var player = player_scene.instantiate()
 		var spawn_location = Vector3(
@@ -48,7 +50,13 @@ func _ready() -> void:
 		player.reproduce_player.connect(_on_player_reproduce_player)
 		add_child(player)
 		player.initialize(spawn_location, centre, width)
+		players.append(player)
+	players.shuffle()
+	for i in range(min(initial_infected_prey, players.size())): #j'infecte 5 joueurs au hasard, foyer de contamination
+		players[i].infected = true
+		players[i].update_visual()
 		
+	
 	for i in range(nb_mob):
 		var mob = mob_scene.instantiate()
 		var spawn_location = Vector3(

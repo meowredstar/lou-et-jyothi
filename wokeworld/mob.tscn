@@ -37,5 +37,21 @@ autostart = true
 wait_time = 29.886000000000003
 autostart = true
 
+[node name="StatusMarker" type="MeshInstance3D" parent="." unique_id=1140560841]
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="StatusMarker" unique_id=1537973756]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 22.170984, 0)
+radius = 0.795
+height = 1.81
+cone = true
+smooth_faces = false
+
+[node name="CSGCylinder3D2" type="CSGCylinder3D" parent="StatusMarker" unique_id=1697922752]
+transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 20.363058, 0)
+radius = 0.795
+height = 1.81
+cone = true
+smooth_faces = false
+
 [connection signal="timeout" from="LifeExpectancy" to="." method="_on_life_expectancy_timeout"]
 [connection signal="timeout" from="Starvation" to="." method="_on_life_expectancy_timeout"]
