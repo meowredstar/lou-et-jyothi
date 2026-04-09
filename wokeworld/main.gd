@@ -25,7 +25,19 @@ const permutation = [151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,
 155,167,43,172,9,129,22,39,253,19,98,108,110,79,113,224,232,178,185,112,104,218
 ,246,97,228,251,34,242,193,238,210,144,12,191,179,162,241,81,51,145,235,249,14,
 239,107,49,192,214,31,181,199,106,157,184,84,204,176,115,121,50,45,127,4,150,
-254,138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180]
+254,138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180,151 # repet ici
+,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,
+37,240,21,10,23,190,6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,
+32,57,177,33,88,237,149,56,87,174,20,125,136,171,168,68,175,74,165,71,134,139,
+48,27,166,77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,
+40,244,102,143,54,65,25,63,161,1,216,80,73,209,76,132,187,208, 89,18,169,200,
+196,135,130,116,188,159,86,164,100,109,198,173,186,3,64,52,217,226,250,124,123,
+5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,223
+,183,170,213,119,248,152,2,44,154,163, 70,221,153,101,155,167,43,172,9,129,22,
+39,253,19,98,108,110,79,113,224,232,178,185,112,104,218,246,97,228,251,34,242,
+193,238,210,144,12,191,179,162,241,81,51,145,235,249,14,239,107,49,192,214,31,
+181,199,106,157,184,84,204,176,115,121,50,45,127,4,150,254,138,236,205,93,222,
+114,67,29,24,72,243,141,128,195,78,66,215,61,156,180]
 
 
 # Fade function as defined by Ken Perlin. This eases coordinate values
@@ -35,9 +47,9 @@ func fade(t):
 	return t * t * t * (t * (t * 6 - 15) + 10)   # 6t^5 - 15t^4 + 10t^3
 
 
-func grad(hash, x, y, z):
+func grad(hash_p, x, y, z):
 	# Take the hashed value and take the first 4 bits of it (15 == 0b1111)
-	var h = hash & 15
+	var h = hash_p & 15
 	# If the most significant bit (MSB) of the hash is 0 then set u = x.  Otherwise y.
 	var u = x if h < 0b1000 else y
 	
@@ -62,15 +74,19 @@ func grad(hash, x, y, z):
 # The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
 # plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
 func perlin(x, y, z):
-	var xi = int(x) & 255
-	var yi = int(y) & 255
-	var zi = int(z) & 255
-	var xf = x-int(x)
-	var yf = y-int(y)
-	var zf = z-int(z)
+	var xi = int(x) % 256
+	if xi < 0: xi += 256
+	var yi = int(y) % 256
+	if yi < 0: yi += 256
+	var zi = int(z) % 256
+	if zi < 0: zi += 256
 	
-	var u = fade(xf);
-	var v = fade(yf);
+	var xf = x-floor(x)
+	var yf = y-floor(y)
+	var zf = z-floor(z)
+	
+	var u = fade(xf)
+	var v = fade(yf)
 	var w = fade(zf)
 	
 	var coin_bas_gauche_arriere = permutation[permutation[permutation[xi]+yi]+
@@ -149,15 +165,14 @@ func type_neighbours(x, z):
 
 
 func _ready() -> void:
-	perlin(10.5, 11, 10.5)
 	var noise = FastNoiseLite.new()
 	noise.seed = randi_range(10, 99999)
 	noise.noise_type = FastNoiseLite.TYPE_PERLIN
 	var start_pos = $GridMap.local_to_map(centre-width)
 	var end_pos = $GridMap.local_to_map(centre+width)
 	var pos = Vector3i(start_pos.x, 0, start_pos.z)
-	var noise_res = int(round((noise.get_noise_3d(start_pos.x, 0, start_pos.z)+
-	1.0)*2.125))
+	var noise_res = int(round((perlin(start_pos.x/10.0, 0.0, start_pos.z/10.0)+
+	1)*1.99999999999999))
 	match noise_res:
 		1:
 			$GridMap.set_cell_item(pos, randi_range(0, 1))
@@ -172,8 +187,12 @@ func _ready() -> void:
 			if x == start_pos.x and z == start_pos.z:
 				continue
 			pos = Vector3i(x, 0, z)
-			noise_res = int(round((noise.get_noise_3d(x, 0, z)+1.0)*2.125))
-			print(noise_res)
+			#noise_res = int(round((noise.get_noise_3d(x, 0, z)+1.0)*2.125))
+			noise_res = int(round((perlin(x/10.0, 0.0, z/10.0)+1)
+			*2))
+			if noise_res == 4: noise_res = 3
+			if noise_res == 0: noise_res = 1
+			#print(noise_res)
 			var n_type = type_neighbours(x, z)
 			var neighbour = [$GridMap.INVALID_CELL_ITEM]
 			while (neighbour[0] == $GridMap.INVALID_CELL_ITEM):
@@ -394,8 +413,8 @@ func _ready() -> void:
 									7), randi_range(12, 13)][randi_range(0, 1)]
 									, 10)
 								_:
-									$GridMap.set_cell_item(pos, randi_range(2,
-									3))
+									$GridMap.set_cell_item(pos, randi_range(8,
+									9))
 				_:
 					printerr("Hauteur non prise en charge")
 	
