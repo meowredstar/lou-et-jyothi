@@ -124,22 +124,33 @@ func perlin(x, y, z):
 	
 	return lerp(y1, y2, w)
 
-func _on_mob_reproduce_mob(position):
+func _on_mob_reproduce_mob(position, baby_mutated):
 	var mob = mob_scene.instantiate()
 	add_child(mob)
 
 	var offset = Vector3(randf_range(-1,1), 0, randf_range(-1,1))
 	mob.initialize(position + offset, centre, width)
 
+	if baby_mutated:
+		mob.health_state = mob.HealthState.MUTATED
+		mob.current_speed = int(mob.current_speed * mob.mutation_speed_multiplier)
+		mob.death_probability = mob.mutation_death_probability
+		mob.infection_timer = mob.infection_duration
+		mob.update_visual()
+
 	mob.reproduce_mob.connect(_on_mob_reproduce_mob)
 
-func _on_player_reproduce_player(position):
+func _on_player_reproduce_player(position, baby_mutated):
 	var player = player_scene.instantiate()
 	add_child(player)
 
 	var offset = Vector3(randf_range(-1,1), 0, randf_range(-1,1))
-	player.initialize(position + offset, centre, width)
 
+	if baby_mutated:
+		player.mutated = true
+		player.infected = true
+
+	player.initialize(position + offset, centre, width)
 	player.reproduce_player.connect(_on_player_reproduce_player)
 
 func type_of_cell(x: int, z: int):
@@ -427,6 +438,8 @@ func _ready() -> void:
 			#$GridMap.set_cell_item(Vector3i(x, 0, z), randi_range(0, 22))
 	#$Player.initialize($Player.position, centre, width)
 	#add_child($Player)
+	
+	
 	var players = []
 	for i in range(nb_player):
 		var player = player_scene.instantiate()
@@ -464,6 +477,7 @@ func _ready() -> void:
 		10, 
 		randf_range(centre.z-width.z,centre.z+width.z)
 		))
+		
 
 #func _on_mob_timer_timeout() -> void:
 	## Create a new instance of the Mob scene.

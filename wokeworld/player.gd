@@ -7,6 +7,14 @@ extends CharacterBody3D
 @onready var top = $StatusMarker/CSGCylinder3D
 @onready var bottom = $StatusMarker/CSGCylinder3D2
 
+@export var mutated := false
+@export var mutation_speed_multiplier := 1.2
+@export var mutation_reproduction_multiplier := 1.25
+@export var mutation_probability_on_reproduction := 0.2
+
+func _ready():
+	add_to_group("prey")
+
 #changer sa couleur
 func set_color(color: Color):
 	var mat := StandardMaterial3D.new()
@@ -16,10 +24,24 @@ func set_color(color: Color):
 	bottom.material = mat
 	
 func update_visual():
-	if infected:
+	if mutated:
+		set_color(Color(0.2, 0.4, 1.0)) # bleu
+	elif infected:
 		set_color(Color(1, 0.2, 0.2)) # rouge
 	else:
 		set_color(Color(0.2, 1, 0.2)) # vert
+
+func mutate_prey():
+	if mutated:
+		return
+
+	if not infected:
+		infected = true
+
+	mutated = true
+	current_speed = int(current_speed * mutation_speed_multiplier)
+	reproduction_chance *= mutation_reproduction_multiplier
+	update_visual()
 
 func is_infected_prey() -> bool:
 	return infected
@@ -34,11 +56,11 @@ signal hit
 # The downward acceleration when in the air, in meters per second squared.
 @export var fall_acceleration = 75
 # Vertical impulse applied to the character upon jumping in meters per second.
-@export var min_turn_time = 1.0
-@export var max_turn_time = 3.0
+@export var min_turn_time = 0.4
+@export var max_turn_time = 1.2
 
-@export var reproduction_chance := 0.1
-@export var reproduction_interval := 5.0
+@export var reproduction_chance := 0.12
+@export var reproduction_interval := 10
 
 var reproduction_timer := 0.0
 
@@ -67,7 +89,7 @@ func choose_random_direction(start_position, ground_center, ground_half_size):
 
 	turn_timer = randf_range(min_turn_time, max_turn_time)
 
-signal reproduce_player(position)
+signal reproduce_player(position, baby_mutated)
 	
 func _physics_process(delta):
 	
@@ -76,10 +98,14 @@ func _physics_process(delta):
 	
 	reproduction_timer -= delta
 	
-	if reproduction_timer <= 0.0 :
+	if reproduction_timer <= 0.0:
 		reproduction_timer = reproduction_interval
 		if randf() <= reproduction_chance and age >= reproduction_min_age:
-			reproduce_player.emit(global_position)
+			var baby_mutated = false
+			if infected and randf() < mutation_probability_on_reproduction:
+				baby_mutated = true
+
+			reproduce_player.emit(global_position, baby_mutated)
 			
 	turn_timer -= delta
 
@@ -92,14 +118,16 @@ func _physics_process(delta):
 	for body in $MobDetector.get_overlapping_bodies():
 		if body.is_in_group("mob"):
 			fleeing = true
-			velocity = velocity.rotated(Vector3.UP, -rotation.y)
 
 			var flee_direction = global_position - body.global_position
 			flee_direction.y = 0
+			flee_direction = flee_direction.normalized()
 
-			look_at(global_position + flee_direction, Vector3.UP)
+			if flee_direction.length() > 0.001:
+				look_at(global_position + flee_direction, Vector3.UP)
+				velocity.x = flee_direction.x * current_speed
+				velocity.z = flee_direction.z * current_speed
 
-			velocity = velocity.rotated(Vector3.UP, rotation.y)
 			break
 			
 	if not fleeing:
@@ -110,6 +138,13 @@ func _physics_process(delta):
 		velocity.y = 0
 	
 	move_and_slide()
+	
+	var previous_position = global_position
+	move_and_slide()
+	var moved_distance = global_position.distance_to(previous_position)
+
+	if moved_distance < 0.02:
+		choose_random_direction(global_position, area_center, area_width)	
 	
 	var min_x = area_center.x - area_width.x
 	var max_x = area_center.x + area_width.x
@@ -140,7 +175,9 @@ func _physics_process(delta):
 	
 	
 	# We check for each move input and update the direction accordingly.
-	
+
+func is_mutated_prey() -> bool:
+	return mutated
 	
 	
 	
@@ -151,6 +188,14 @@ func initialize(start_position, ground_center, ground_half_size):
 	area_width = ground_half_size
 	counter += 1
 	current_speed = randi_range(min_speed, max_speed)
+	
+	safe_margin = 0.08
+	floor_snap_length = 1.5
+	up_direction = Vector3.UP
+
+	if mutated:
+		current_speed = int(current_speed * mutation_speed_multiplier)
+		reproduction_chance *= mutation_reproduction_multiplier
 	choose_random_direction(start_position, ground_center, ground_half_size)
 
 func die():

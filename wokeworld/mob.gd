@@ -10,6 +10,12 @@ extends CharacterBody3D
 @onready var top = $StatusMarker/CSGCylinder3D
 @onready var bottom = $StatusMarker/CSGCylinder3D2
 
+@export var mutation_probability_on_recovery := 0.15
+@export var mutation_probability_on_reproduction := 0.2
+
+func _ready():
+	add_to_group("mob")
+
 func set_color(color: Color):
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = color
@@ -23,6 +29,8 @@ func update_visual():
 			set_color(Color(0.2, 1, 0.2)) # vert
 		HealthState.INFECTED:
 			set_color(Color(1, 0.2, 0.2)) # rouge
+		HealthState.MUTATED:
+			set_color(Color(0.2, 0.4, 1.0)) # bleu
 		HealthState.RESISTANT:
 			set_color(Color(0.5, 0.5, 0.5)) # gris
 
@@ -44,14 +52,21 @@ var current_speed
 @export var reproduction_min_age := 10.0
 var age := 0.0
 
-enum HealthState { #les divers états SIR
+enum HealthState {
 	HEALTHY,
 	INFECTED,
+	MUTATED,
 	RESISTANT
 }
+
+@export var mutation_speed_multiplier := 1.2
+@export var mutation_infection_radius := 6.0
+@export var normal_infection_radius := 4.0
+@export var mutation_death_probability := 0.5
+
 var health_state = HealthState.HEALTHY
 var infection_timer := 0.0
-@export var infection_duration := 100
+@export var infection_duration := 10
 #@export var infection_chance := 1
 @export var death_probability := 0.3
 
@@ -60,18 +75,23 @@ var infection_timer := 0.0
 #signal squashed
 
 
-func infect():
-	# se s'infecte que si sain
-	if health_state == HealthState.HEALTHY:
+func infect(mutated := false):
+	if health_state != HealthState.HEALTHY:
+		return
+
+	if mutated:
+		health_state = HealthState.MUTATED
+		infection_timer = infection_duration
+		death_probability = mutation_death_probability
+		current_speed = int(current_speed * mutation_speed_multiplier)
+	else:
 		health_state = HealthState.INFECTED
 		infection_timer = infection_duration
-		update_visual()
 
-		# (optionnel) feedback visuel
-		#$MeshInstance3D.modulate = Color(1, 0.3, 0.3)
+	update_visual()
 
 func update_infection(delta):
-	if health_state != HealthState.INFECTED:
+	if health_state != HealthState.INFECTED and health_state != HealthState.MUTATED:
 		return
 
 	infection_timer -= delta
@@ -80,12 +100,21 @@ func update_infection(delta):
 		if randf() < death_probability:
 			queue_free()
 		else:
-			health_state = HealthState.RESISTANT
-			update_visual()
+			if health_state == HealthState.INFECTED and randf() < mutation_probability_on_recovery:
+				health_state = HealthState.MUTATED
+			else:
+				health_state = HealthState.RESISTANT
 
+			update_visual()
+			
+			
 func infect_predators_on_contact():
-	if health_state != HealthState.INFECTED:
+	if health_state != HealthState.INFECTED and health_state != HealthState.MUTATED:
 		return
+
+	var radius = normal_infection_radius
+	if health_state == HealthState.MUTATED:
+		radius = mutation_infection_radius
 
 	for body in get_tree().get_nodes_in_group("mob"):
 		if body == self:
@@ -93,8 +122,8 @@ func infect_predators_on_contact():
 		if body.health_state != HealthState.HEALTHY:
 			continue
 
-		if global_position.distance_to(body.global_position) < 4.0:
-				body.infect()
+		if global_position.distance_to(body.global_position) < radius:
+			body.infect(health_state == HealthState.MUTATED)
 
 func choose_random_direction():
 	var target = Vector3(
@@ -109,7 +138,7 @@ func choose_random_direction():
 
 	turn_timer = randf_range(min_turn_time, max_turn_time)
 
-signal reproduce_mob(position)
+signal reproduce_mob(position, baby_mutated)
 
 
 
@@ -125,7 +154,13 @@ func _physics_process(_delta):
 	if reproduction_timer <= 0.0:
 		reproduction_timer = reproduction_interval
 		if randf() < reproduction_chance and age >= reproduction_min_age:
-			reproduce_mob.emit(global_position)
+			var baby_mutated = false
+
+			if health_state == HealthState.MUTATED or health_state == HealthState.INFECTED or health_state == HealthState.RESISTANT:
+				if randf() < mutation_probability_on_reproduction:
+					baby_mutated = true
+
+			reproduce_mob.emit(global_position, baby_mutated)
 	
 	turn_timer -= _delta
 
@@ -146,8 +181,7 @@ func _physics_process(_delta):
 			prey_pos.y = 0
 			mob_pos.y = 0
 
-			if mob_pos.distance_to(prey_pos) < 3:
-				print("touché")
+			if mob_pos.distance_to(prey_pos) < 4:
 				eat_prey(body)
 			
 			break
@@ -224,11 +258,15 @@ func initialize(start_position, area_cente, area_widt):
 	#print("après : ", velocity)
 
 func eat_prey(prey):
-	if prey != null :
-		#contamination par la proie
-		if prey.has_method("is_infected_prey") and prey.is_infected_prey(): 
-			infect()
+	if prey != null:
+		if prey.has_method("is_infected_prey") and prey.is_infected_prey():
+			if prey.has_method("is_mutated_prey") and prey.is_mutated_prey():
+				infect(true)
+			else:
+				infect(false)
+
 		prey.queue_free()
+
 	starvation_timer.start()
 
 func _on_starvation_timeout() -> void:
