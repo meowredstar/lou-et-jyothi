@@ -7,7 +7,8 @@
 size = Vector3(1.6623535, 0.8899231, 2.0640717)
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_nokgg"]
-radius = 11.797363
+height = 25.800049
+radius = 14.490234
 
 [node name="Mob" type="CharacterBody3D" unique_id=147208428 groups=["mob"]]
 collision_layer = 2
@@ -27,6 +28,7 @@ shape = SubResource("BoxShape3D_nokgg")
 [node name="PreyDetector" type="Area3D" parent="." unique_id=1306049375]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="PreyDetector" unique_id=1691300495]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.406128, 0)
 shape = SubResource("CylinderShape3D_nokgg")
 
 [node name="LifeExpectancy" type="Timer" parent="." unique_id=875142001]

@@ -1,5 +1,7 @@
 extends CharacterBody3D
 
+@export var fall_acceleration := 75.0
+
 # Minimum speed of the mob in meters per second.
 @export var min_speed = 10
 # Maximum speed of the mob in meters per second.
@@ -138,11 +140,19 @@ func _physics_process(_delta):
 			look_at(target, Vector3.UP)
 			velocity = velocity.rotated(Vector3.UP, rotation.y)
 			
-			if global_position.distance_to(body.global_position) < 3:
-				eat_prey(body)
+			var prey_pos = body.global_position
+			var mob_pos = global_position
 
+			prey_pos.y = 0
+			mob_pos.y = 0
+
+			if mob_pos.distance_to(prey_pos) < 3:
+				print("touché")
+				eat_prey(body)
 			
 			break
+	
+	
 	move_and_slide()
 	
 	var min_x = area_center.x - area_width.x
@@ -216,8 +226,8 @@ func initialize(start_position, area_cente, area_widt):
 func eat_prey(prey):
 	if prey != null :
 		#contamination par la proie
-		if prey.has_method("is_infected_prey") and prey.is_infected_prey(): # probabilité de transmission
-				infect()
+		if prey.has_method("is_infected_prey") and prey.is_infected_prey(): 
+			infect()
 		prey.queue_free()
 	starvation_timer.start()
 

@@ -12,9 +12,9 @@ script = ExtResource("1_0xm2m")
 player_scene = ExtResource("1_ig7tw")
 mob_scene = ExtResource("2_h2yge")
 tree_scene = ExtResource("4_1bvp3")
-nb_mob = 250
-nb_player = 250
-nb_tree = 250
+nb_mob = 1
+nb_tree = 100
+initial_infected_prey = 100
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1000984621]
 transform = Transform3D(1, 0, 0, 0, 0.25881907, 0.9659258, 0, -0.9659258, 0.25881907, 350, 256, 297)
