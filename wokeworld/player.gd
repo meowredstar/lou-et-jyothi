@@ -12,6 +12,31 @@ extends CharacterBody3D
 @export var mutation_reproduction_multiplier := 1.25
 @export var mutation_probability_on_reproduction := 0.2
 
+
+@export var step_height := 1
+@export var max_step_levels := 3
+
+func try_step_up(delta: float) -> bool:
+	var horizontal_motion = Vector3(velocity.x, 0.0, velocity.z) * delta
+
+	if horizontal_motion.length() < 0.001:
+		return false
+
+	# On ne teste que si le déplacement horizontal est bloqué
+	if not test_move(global_transform, horizontal_motion):
+		return false
+
+	for level in range(1, max_step_levels + 1):
+		var step_offset = step_height * level
+		var raised_transform = global_transform.translated(Vector3.UP * step_offset)
+
+		# Si en étant plus haut on peut avancer, on monte
+		if not test_move(raised_transform, horizontal_motion):
+			global_position.y += step_offset
+			return true
+
+	return false
+
 func _ready():
 	add_to_group("prey")
 
@@ -52,7 +77,6 @@ signal hit
 # Maximum speed of the mob in meters per second.
 @export var max_speed = 18
 # How fast the player moves in meters per second.
-@export var speed = 14
 # The downward acceleration when in the air, in meters per second squared.
 @export var fall_acceleration = 75
 # Vertical impulse applied to the character upon jumping in meters per second.
@@ -112,12 +136,12 @@ func _physics_process(delta):
 	if turn_timer <= 0:
 		choose_random_direction(global_position, area_center, area_width)
 
-	var fleeing = false
+
 
 	
 	for body in $MobDetector.get_overlapping_bodies():
 		if body.is_in_group("mob"):
-			fleeing = true
+
 
 			var flee_direction = global_position - body.global_position
 			flee_direction.y = 0
@@ -130,21 +154,19 @@ func _physics_process(delta):
 
 			break
 			
-	if not fleeing:
-		pass
 	if not is_on_floor():
 		velocity.y -= fall_acceleration * delta
 	else:
 		velocity.y = 0
-	
-	move_and_slide()
-	
+
+	var did_step_up = try_step_up(delta)
+
 	var previous_position = global_position
 	move_and_slide()
 	var moved_distance = global_position.distance_to(previous_position)
 
-	if moved_distance < 0.02:
-		choose_random_direction(global_position, area_center, area_width)	
+	if not did_step_up and moved_distance < 0.02:
+		choose_random_direction(global_position, area_center, area_width)
 	
 	var min_x = area_center.x - area_width.x
 	var max_x = area_center.x + area_width.x

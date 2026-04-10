@@ -36,7 +36,7 @@ wait_time = 60.0
 autostart = true
 
 [node name="Starvation" type="Timer" parent="." unique_id=1081863328]
-wait_time = 29.886000000000003
+wait_time = 61.851
 autostart = true
 
 [node name="StatusMarker" type="MeshInstance3D" parent="." unique_id=1140560841]

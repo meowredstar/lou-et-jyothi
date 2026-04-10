@@ -12,8 +12,8 @@ script = ExtResource("1_0xm2m")
 player_scene = ExtResource("1_ig7tw")
 mob_scene = ExtResource("2_h2yge")
 tree_scene = ExtResource("4_1bvp3")
-nb_mob = 0
-nb_player = 1
+nb_mob = 10
+nb_player = 50
 nb_tree = 100
 initial_infected_prey = 25
 
@@ -42,5 +42,6 @@ cell_octant_size = 512
 cell_scale = 4.0
 collision_layer = 4
 collision_mask = 0
+metadata/_editor_floor_ = Vector3(0, -3, 0)
 
 [connection signal="timeout" from="MobTimer" to="." method="_on_mob_timer_timeout"]
