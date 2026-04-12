@@ -7,6 +7,8 @@ extends Node
 @export var nb_player: int = 100
 @export var nb_tree: int = 10
 @export var initial_infected_prey := 5 #permet de mettre en place le modèle SIR
+@export var fire_probability = 0.25
+@export var rain_probability = 0.01
 
 # terrain dimension
 var centre = Vector3(0, 0, 0)
@@ -178,6 +180,25 @@ func type_neighbours(x, z):
 
 func get_nearest_global_pos_on_map(pos: Vector3):
 	return $GridMap.map_to_local($GridMap.local_to_map(pos))
+
+
+func start_rain():
+	$CameraPivot/Camera3D/GPUParticles3D.emitting = true
+	$RainDuration.start()
+	$ExtinctFire.start()
+
+
+func _on_rain_duration_timeout() -> void:
+	$RainDuration.stop()
+	$ExtinctFire.stop()
+	$CameraPivot/Camera3D/GPUParticles3D.emitting = false
+
+
+func _on_extinct_fire_timeout() -> void:
+	var fire_tree = get_tree().get_nodes_in_group("burn")
+	if fire_tree != []:
+		var t = fire_tree.pick_random()
+		t.stop_fire()
 
 
 func _ready() -> void:
@@ -457,8 +478,9 @@ func _ready() -> void:
 		centre.x-width.x, centre.x+width.x), 0, randf_range(centre.z-width.z,
 		centre.z+width.z)))
 		add_child(tree)
-		if randf() < 0.25:
+		if randf() <= fire_probability:
 			tree.set_on_fire()
+	
 
 
 func _process(delta: float) -> void:
@@ -483,3 +505,6 @@ func _process(delta: float) -> void:
 			z+1] or previous[pos.x+1][pos.z-1] or previous[pos.x+1][pos.z] or \
 			previous[pos.x+1][pos.z+1]:
 				tree.set_on_fire()
+	
+	if randf() <= rain_probability:
+		start_rain()

@@ -16,6 +16,13 @@ func set_on_fire():
 	$fire.visible = true
 	$BurnOtherTrees.start()
 
+func stop_fire():
+	$BurnOtherTrees.stop()
+	$fire.visible = false
+	remove_from_group("burn")
+	if is_in_group("burning"):
+		remove_from_group("burning")
+
 
 func _on_burn_other_trees_timeout() -> void:
 	$Burned.start()
