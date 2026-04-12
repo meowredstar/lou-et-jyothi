@@ -141,8 +141,6 @@ func _physics_process(delta):
 	
 	for body in $MobDetector.get_overlapping_bodies():
 		if body.is_in_group("mob"):
-
-
 			var flee_direction = global_position - body.global_position
 			flee_direction.y = 0
 			flee_direction = flee_direction.normalized()

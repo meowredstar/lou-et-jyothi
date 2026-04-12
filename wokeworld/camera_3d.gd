@@ -1,6 +1,6 @@
 extends Camera3D
 
-var speed = 0.75
+var speed = 2
 var rotational_speed = 0.05
 
 # Called when the node enters the scene tree for the first time.

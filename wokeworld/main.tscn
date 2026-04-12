@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://cfb7xo35cn5fo" path="res://main.gd" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://ceuu150fmggvr" path="res://player.tscn" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://defdm2qdva75q" path="res://mob.tscn" id="2_h2yge"]
-[ext_resource type="PackedScene" uid="uid://o4resmt5mpdy" path="res://tree.tscn" id="4_1bvp3"]
+[ext_resource type="PackedScene" uid="uid://c1cthpb3yntve" path="res://fire_tree.tscn" id="4_7mycd"]
 [ext_resource type="Script" uid="uid://cgyou8lypveab" path="res://camera_3d.gd" id="5_lquwl"]
 [ext_resource type="MeshLibrary" uid="uid://bog6aa5sjolt0" path="res://mesh_library.tres" id="6_7mycd"]
 
@@ -11,11 +11,10 @@
 script = ExtResource("1_0xm2m")
 player_scene = ExtResource("1_ig7tw")
 mob_scene = ExtResource("2_h2yge")
-tree_scene = ExtResource("4_1bvp3")
+tree_scene = ExtResource("4_7mycd")
 nb_mob = 10
-nb_player = 50
-nb_tree = 100
-initial_infected_prey = 25
+nb_player = 10
+nb_tree = 500
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1000984621]
 transform = Transform3D(1, 0, 0, 0, 0.25881907, 0.9659258, 0, -0.9659258, 0.25881907, 350, 256, 297)
@@ -25,23 +24,17 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.953644, 0, 13.023821)
 
 [node name="Camera3D" type="Camera3D" parent="CameraPivot" unique_id=1922318119]
-transform = Transform3D(1, 0, 0, 0, 0.5, 0.8660254, 0, -0.8660254, 0.5, 5.57222, 326.17868, 202.32002)
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.8660254, 0, -0.8660254, 0.5, 5.572, 700, 400)
 fov = 26.2
 size = 100.0
 script = ExtResource("5_lquwl")
-
-[node name="MobTimer" type="Timer" parent="." unique_id=1426009796]
-wait_time = 0.5
-autostart = true
 
 [node name="GridMap" type="GridMap" parent="." unique_id=227701796]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
 mesh_library = ExtResource("6_7mycd")
 cell_size = Vector3(4, 4, 4)
-cell_octant_size = 512
+cell_octant_size = 1
 cell_scale = 4.0
 collision_layer = 4
 collision_mask = 0
 metadata/_editor_floor_ = Vector3(0, -3, 0)
-
-[connection signal="timeout" from="MobTimer" to="." method="_on_mob_timer_timeout"]

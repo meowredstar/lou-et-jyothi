@@ -69,7 +69,8 @@ func grad(hash_p, x, y, z):
 	# Use the last 2 bits to decide if u and v are positive or negative.  Then return their addition.
 	return (u if (h&1) == 0 else -u)+(v if (h&2) == 0 else -v)
 
-
+# article de blog sur lequel je me suis basée pour traduire cet algo en 
+# gdscript : https://adrianb.io/2014/08/09/perlinnoise.html
 # Calculate the "unit cube" that the point asked will be located in
 # The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
 # plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
@@ -175,10 +176,11 @@ func type_neighbours(x, z):
 	return types
 
 
+func get_nearest_global_pos_on_map(pos: Vector3):
+	return $GridMap.map_to_local($GridMap.local_to_map(pos))
+
+
 func _ready() -> void:
-	var noise = FastNoiseLite.new()
-	noise.seed = randi_range(10, 99999)
-	noise.noise_type = FastNoiseLite.TYPE_PERLIN
 	var start_pos = $GridMap.local_to_map(centre-width)
 	var end_pos = $GridMap.local_to_map(centre+width)
 	var pos = Vector3i(start_pos.x, 0, start_pos.z)
@@ -193,17 +195,16 @@ func _ready() -> void:
 			$GridMap.set_cell_item(pos, randi_range(16, 19), 16)
 		_:
 			printerr("valeur non prévue : ", noise_res)
+	
 	for x in range(start_pos.x, end_pos.x + 1):
 		for z in range(start_pos.z, end_pos.z + 1):
 			if x == start_pos.x and z == start_pos.z:
 				continue
 			pos = Vector3i(x, 0, z)
-			#noise_res = int(round((noise.get_noise_3d(x, 0, z)+1.0)*2.125))
 			noise_res = int(round((perlin(x/10.0, 0.0, z/10.0)+1)
-			*2))
+			*1.99999999999999))
 			if noise_res == 4: noise_res = 3
 			if noise_res == 0: noise_res = 1
-			#print(noise_res)
 			var n_type = type_neighbours(x, z)
 			var neighbour = [$GridMap.INVALID_CELL_ITEM]
 			while (neighbour[0] == $GridMap.INVALID_CELL_ITEM):
@@ -354,8 +355,6 @@ func _ready() -> void:
 							match x:
 								start_pos.x:
 									match z:
-										#start_pos.z:
-											#$GridMap.set_cell_item(pos, randi_range(14, 15), 16)
 										end_pos.z:
 											$GridMap.set_cell_item(pos,
 											randi_range(14, 15), 10)
@@ -365,8 +364,6 @@ func _ready() -> void:
 								end_pos.x:
 									match z:
 										start_pos.z:
-											#$GridMap.set_cell_item(pos,
-											#randi_range(14, 15), 16)
 											$GridMap.set_cell_item(pos,
 											randi_range(14, 15), 0)
 										end_pos.z:
@@ -378,8 +375,6 @@ func _ready() -> void:
 								_:
 									match z:
 										start_pos.z:
-											#$GridMap.set_cell_item(pos,
-											#randi_range(10, 11), 16)
 											$GridMap.set_cell_item(pos,
 											randi_range(10, 11), 0)
 										end_pos.z:
@@ -392,8 +387,6 @@ func _ready() -> void:
 					match x:
 						start_pos.x:
 							match z:
-								#start_pos.z:
-									#$GridMap.set_cell_item(pos, randi_range(14, 15), 16)
 								end_pos.z:
 									$GridMap.set_cell_item(pos, randi_range(16,
 									 19), 10)
@@ -429,17 +422,6 @@ func _ready() -> void:
 				_:
 					printerr("Hauteur non prise en charge")
 	
-	#var centre = $Ground/CollisionShape3D.position
-	#var width = $Ground/CollisionShape3D.shape.extents
-	#start_pos = $GridMap.local_to_map(centre-width)
-	#end_pos = $GridMap.local_to_map(centre+width)
-	#for x in range(start_pos.x, end_pos.x + 1):
-		#for z in range(start_pos.z, end_pos.z + 1):
-			#$GridMap.set_cell_item(Vector3i(x, 0, z), randi_range(0, 22))
-	#$Player.initialize($Player.position, centre, width)
-	#add_child($Player)
-	
-	
 	var players = []
 	for i in range(nb_player):
 		var player = player_scene.instantiate()
@@ -468,34 +450,36 @@ func _ready() -> void:
 		mob.reproduce_mob.connect(_on_mob_reproduce_mob)
 		add_child(mob)
 		mob.initialize(spawn_location, centre, width)
-		
+	
 	for i in range(nb_tree):
 		var tree = tree_scene.instantiate()
+		tree.position = get_nearest_global_pos_on_map(Vector3(randf_range(
+		centre.x-width.x, centre.x+width.x), 0, randf_range(centre.z-width.z,
+		centre.z+width.z)))
 		add_child(tree)
-		tree.set_global_position(Vector3(
-		randf_range(centre.x-width.x,centre.x+width.x), 
-		10, 
-		randf_range(centre.z-width.z,centre.z+width.z)
-		))
-		
-
-#func _on_mob_timer_timeout() -> void:
-	## Create a new instance of the Mob scene.
-	#var mob = mob_scene.instantiate()
-#
-	## Choose a random location on the SpawnPath.
-	## We store the reference to the SpawnLocation node.
-	#var mob_spawn_location = get_node("SpawnPath/SpawnLocation")
-	## And give it a random offset.
-	#mob_spawn_location.progress_ratio = randf()
-#
-	#var player_position = $Player.position
-	#mob.initialize(mob_spawn_location.position, player_position)
-#
-	## Spawn the mob by adding it to the Main scene.
-	#add_child(mob)
+		if randf() < 0.25:
+			tree.set_on_fire()
 
 
-func _on_player_hit() -> void:
-	pass
-	#$MobTimer.stop()
+func _process(delta: float) -> void:
+	var start_pos = $GridMap.local_to_map(centre-width)
+	var end_pos = $GridMap.local_to_map(centre+width)
+	
+	var previous = []
+	var previous_row = []
+	previous.resize(end_pos.x-start_pos.x)
+	previous_row.resize(end_pos.z-start_pos.z)
+	previous.fill(previous_row)
+	
+	for tree in get_tree().get_nodes_in_group("tree"):
+		var pos = $GridMap.local_to_map(tree.global_position)
+		previous[pos.x][pos.z] = tree.is_in_group("burning")
+	
+	for tree in get_tree().get_nodes_in_group("tree"):
+		if not tree.is_in_group("burn"):
+			var pos = $GridMap.local_to_map(tree.global_position)
+			if previous[pos.x-1][pos.z-1] or previous[pos.x-1][pos.z] or previous[
+			pos.x-1][pos.z+1] or  previous[pos.x][pos.z-1] or previous[pos.x][pos.
+			z+1] or previous[pos.x+1][pos.z-1] or previous[pos.x+1][pos.z] or \
+			previous[pos.x+1][pos.z+1]:
+				tree.set_on_fire()
