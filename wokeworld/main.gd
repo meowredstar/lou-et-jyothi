@@ -10,6 +10,9 @@ extends Node
 @export var fire_probability = 0.25
 @export var rain_probability = 0.01
 
+var manual = false
+var manual_rain = false
+
 # terrain dimension
 var centre = Vector3(0, 0, 0)
 var width = Vector3(250, 0, 250)
@@ -459,7 +462,6 @@ func _ready() -> void:
 	for i in range(min(initial_infected_prey, players.size())): #j'infecte 5 joueurs au hasard, foyer de contamination
 		players[i].infected = true
 		players[i].update_visual()
-		
 	
 	for i in range(nb_mob):
 		var mob = mob_scene.instantiate()
@@ -480,31 +482,22 @@ func _ready() -> void:
 		add_child(tree)
 		if randf() <= fire_probability:
 			tree.set_on_fire()
-	
 
 
-func _process(delta: float) -> void:
-	var start_pos = $GridMap.local_to_map(centre-width)
-	var end_pos = $GridMap.local_to_map(centre+width)
+func _process(_delta: float) -> void:
+	if Input.is_action_just_pressed("manual"):
+		manual = not manual
 	
-	var previous = []
-	var previous_row = []
-	previous.resize(end_pos.x-start_pos.x)
-	previous_row.resize(end_pos.z-start_pos.z)
-	previous.fill(previous_row)
+	if manual and Input.is_action_just_pressed("rain"):
+		manual_rain = not manual_rain
+		if manual_rain:
+			start_rain()
+		else:
+			_on_rain_duration_timeout()
 	
-	for tree in get_tree().get_nodes_in_group("tree"):
-		var pos = $GridMap.local_to_map(tree.global_position)
-		previous[pos.x][pos.z] = tree.is_in_group("burning")
-	
-	for tree in get_tree().get_nodes_in_group("tree"):
-		if not tree.is_in_group("burn"):
-			var pos = $GridMap.local_to_map(tree.global_position)
-			if previous[pos.x-1][pos.z-1] or previous[pos.x-1][pos.z] or previous[
-			pos.x-1][pos.z+1] or  previous[pos.x][pos.z-1] or previous[pos.x][pos.
-			z+1] or previous[pos.x+1][pos.z-1] or previous[pos.x+1][pos.z] or \
-			previous[pos.x+1][pos.z+1]:
-				tree.set_on_fire()
-	
-	if randf() <= rain_probability:
+	if manual and Input.is_action_just_pressed("stop_fire"):
+		_on_extinct_fire_timeout()
+
+
+	if not manual and randf() <= rain_probability:
 		start_rain()

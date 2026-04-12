@@ -397,6 +397,9 @@ _data = {
 [sub_resource type="SphereShape3D" id="SphereShape3D_48oww"]
 radius = 3.677289
 
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_ulirq"]
+radius = 14.0
+
 [node name="Tree_fire" type="AnimatableBody3D" unique_id=773875022 groups=["tree"]]
 collision_layer = 4
 collision_mask = 0
@@ -678,7 +681,15 @@ shape = SubResource("SphereShape3D_48oww")
 wait_time = 2.0
 
 [node name="Burned" type="Timer" parent="." unique_id=1468866940]
-wait_time = 2.0
+wait_time = 5.0
+
+[node name="fire_detector" type="Area3D" parent="." unique_id=6346551]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.586962, 0)
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="fire_detector" unique_id=432308093]
+shape = SubResource("CylinderShape3D_ulirq")
 
 [connection signal="timeout" from="BurnOtherTrees" to="." method="_on_burn_other_trees_timeout"]
 [connection signal="timeout" from="Burned" to="." method="_on_burned_timeout"]
