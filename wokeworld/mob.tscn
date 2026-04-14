@@ -4,15 +4,15 @@
 [ext_resource type="PackedScene" uid="uid://dqpt1p8o2si8s" path="res://art/squeletteprolo.glb" id="2_nokgg"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_nokgg"]
-size = Vector3(17.15387, 20.441475, 3.0662498)
+size = Vector3(17.15387, 21.423862, 3.0662498)
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_nokgg"]
-height = 25.800049
-radius = 14.490234
+height = 26.096058
+radius = 20.251465
 
 [node name="Mob" type="CharacterBody3D" unique_id=147208428 groups=["mob"]]
 collision_layer = 2
-collision_mask = 0
+collision_mask = 4
 script = ExtResource("1_nokgg")
 max_speed = 20
 
@@ -22,13 +22,14 @@ max_speed = 20
 transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=749853117]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.019927979, 9.946171, 0.22127724)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.019927979, 9.454977, 0.22127724)
 shape = SubResource("BoxShape3D_nokgg")
 
 [node name="PreyDetector" type="Area3D" parent="." unique_id=1306049375]
+collision_layer = 0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="PreyDetector" unique_id=1691300495]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.406128, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 13.411627, 0)
 shape = SubResource("CylinderShape3D_nokgg")
 
 [node name="LifeExpectancy" type="Timer" parent="." unique_id=875142001]

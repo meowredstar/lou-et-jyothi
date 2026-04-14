@@ -13,6 +13,87 @@ extends CharacterBody3D
 @export var mutation_probability_on_recovery := 0.15
 @export var mutation_probability_on_reproduction := 0.2
 
+@export var step_height := 1
+@export var max_step_levels := 3
+
+var target_prey: Node3D = null
+@export var eat_distance := 5.0
+
+func is_prey_still_detected(prey: Node3D) -> bool:
+	if prey == null or not is_instance_valid(prey):
+		return false
+
+	for body in $PreyDetector.get_overlapping_bodies():
+		if body == prey:
+			return true
+
+	return false
+	
+func pick_prey_target() -> void:
+	var closest_prey: Node3D = null
+	var closest_dist := INF
+
+	for body in $PreyDetector.get_overlapping_bodies():
+		if body.is_in_group("prey"):
+			var prey_pos = body.global_position
+			var mob_pos = global_position
+			prey_pos.y = 0
+			mob_pos.y = 0
+
+			var dist = mob_pos.distance_to(prey_pos)
+			if dist < closest_dist:
+				closest_dist = dist
+				closest_prey = body
+
+	target_prey = closest_prey
+	
+func chase_target_prey() -> void:
+	if target_prey == null or not is_instance_valid(target_prey):
+		return
+
+	var target = target_prey.global_position
+	target.y = global_position.y
+
+	var chase_dir = target - global_position
+	chase_dir.y = 0
+
+	if chase_dir.length() > 0.001:
+		chase_dir = chase_dir.normalized()
+		look_at(global_position + chase_dir, Vector3.UP)
+		velocity.x = chase_dir.x * current_speed
+		velocity.z = chase_dir.z * current_speed
+
+	var prey_pos = target_prey.global_position
+	var mob_pos = global_position
+	prey_pos.y = 0
+	mob_pos.y = 0
+
+	if mob_pos.distance_to(prey_pos) < eat_distance:
+		eat_prey(target_prey)
+		target_prey = null
+
+func try_step_up(delta: float) -> bool:
+	var horizontal_motion = Vector3(velocity.x, 0.0, velocity.z) * delta
+
+	if horizontal_motion.length() < 0.001:
+		return false
+
+	# On ne teste que si le déplacement horizontal est bloqué
+	if not test_move(global_transform, horizontal_motion):
+		return false
+
+	for level in range(1, max_step_levels + 1):
+		var step_offset = step_height * level
+		var raised_transform = global_transform.translated(Vector3.UP * step_offset)
+
+		# Si en étant plus haut on peut avancer, on monte
+		if not test_move(raised_transform, horizontal_motion):
+			global_position.y += step_offset
+			return true
+
+	return false
+
+
 func _ready():
 	add_to_group("mob")
 
@@ -102,6 +183,8 @@ func update_infection(delta):
 		else:
 			if health_state == HealthState.INFECTED and randf() < mutation_probability_on_recovery:
 				health_state = HealthState.MUTATED
+				current_speed = int(current_speed * mutation_speed_multiplier)
+				death_probability = mutation_death_probability
 			else:
 				health_state = HealthState.RESISTANT
 
@@ -163,31 +246,30 @@ func _physics_process(_delta):
 			reproduce_mob.emit(global_position, baby_mutated)
 	
 	turn_timer -= _delta
-
-	if turn_timer <= 0:
-		choose_random_direction()
+	if target_prey == null:
+		if turn_timer <= 0:
+			choose_random_direction()
 	
-	for body in $PreyDetector.get_overlapping_bodies():
-		if body.is_in_group("prey") :
-			velocity = velocity.rotated(Vector3.UP, -rotation.y)
-			var target = body.global_position
-			target.y = global_position.y
-			look_at(target, Vector3.UP)
-			velocity = velocity.rotated(Vector3.UP, rotation.y)
+	if target_prey == null or not is_instance_valid(target_prey) or not is_prey_still_detected(target_prey):
+		pick_prey_target()
+
+	if target_prey != null:
+		chase_target_prey()
 			
-			var prey_pos = body.global_position
-			var mob_pos = global_position
+	if not is_on_floor():
+		velocity.y -= fall_acceleration * _delta
+	else:
+		velocity.y = 0
 
-			prey_pos.y = 0
-			mob_pos.y = 0
-
-			if mob_pos.distance_to(prey_pos) < 4:
-				eat_prey(body)
-			
-			break
+	var did_step_up = try_step_up(_delta)
 	
 	
+	var previous_position = global_position
 	move_and_slide()
+	var moved_distance = global_position.distance_to(previous_position)
+
+	if not did_step_up and moved_distance < 0.02:
+		choose_random_direction()
 	
 	var min_x = area_center.x - area_width.x
 	var max_x = area_center.x + area_width.x
@@ -210,7 +292,7 @@ func _physics_process(_delta):
 		global_position.z = max_z
 		touched_edge = true
 	
-	if touched_edge: 
+	if touched_edge:
 		choose_random_direction()
 
 	global_position.x = clamp(global_position.x, min_x, max_x)
@@ -239,8 +321,6 @@ func initialize(start_position, area_cente, area_widt):
 			#)
 	#), Vector3.UP)
 	
-	velocity = Vector3.FORWARD * velocity.length()
-	velocity = velocity.rotated(Vector3.UP, rotation.y)
 	
 	update_visual()
 	# Rotate this mob randomly within range of -45 and +45 degrees,
@@ -249,6 +329,9 @@ func initialize(start_position, area_cente, area_widt):
 
 	# We calculate a random speed (integer)
 	current_speed = randi_range(min_speed, max_speed)
+	safe_margin = 0.08
+	floor_snap_length = 2.0
+	up_direction = Vector3.UP
 	# We calculate a forward velocity that represents the speed.
 	velocity = Vector3.FORWARD * current_speed
 	#print("object : ", self, "avant : ", velocity)
@@ -259,6 +342,8 @@ func initialize(start_position, area_cente, area_widt):
 
 func eat_prey(prey):
 	if prey != null:
+		if prey == target_prey:
+			target_prey = null
 		if prey.has_method("is_infected_prey") and prey.is_infected_prey():
 			if prey.has_method("is_mutated_prey") and prey.is_mutated_prey():
 				infect(true)

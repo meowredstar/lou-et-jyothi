@@ -15,7 +15,7 @@ var manual_rain = false
 
 # terrain dimension
 var centre = Vector3(0, 0, 0)
-var width = Vector3(250, 0, 250)
+var width = Vector3(150, 0, 150)
 
 # Hash lookup table as defined by Ken Perlin.  This is a randomly
 # arranged array of all numbers from 0-255 inclusive.

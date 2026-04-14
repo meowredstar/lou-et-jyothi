@@ -4,14 +4,14 @@
 [ext_resource type="PackedScene" uid="uid://bcx84y4u03kbg" path="res://art/s.w.a.t._operator.glb" id="2_onrkg"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_onrkg"]
-size = Vector3(7.8172607, 17.378723, 6.6324005)
+size = Vector3(7.8172607, 18.628815, 6.6324005)
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_onrkg"]
-height = 21.646631
-radius = 11.398926
+height = 22.59574
+radius = 19.62793
 
 [node name="Player" type="CharacterBody3D" unique_id=458992254 groups=["prey"]]
-collision_mask = 6
+collision_mask = 4
 script = ExtResource("1_onrkg")
 
 [node name="Pivot" type="Node3D" parent="." unique_id=1160553204]
@@ -20,7 +20,7 @@ script = ExtResource("1_onrkg")
 transform = Transform3D(-10, 0, -8.742278e-07, 0, 10, 0, 8.742278e-07, 0, -10, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=223330947]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.24349451, 9.278229, -0.40772188)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.24349451, 8.653183, -0.40772188)
 shape = SubResource("BoxShape3D_onrkg")
 
 [node name="MobDetector" type="Area3D" parent="." unique_id=432094374]
@@ -30,7 +30,7 @@ collision_mask = 2
 monitorable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MobDetector" unique_id=1363175622]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.914023, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.5908, 0)
 shape = SubResource("CylinderShape3D_onrkg")
 
 [node name="LifeExpectancy" type="Timer" parent="." unique_id=1771713200]

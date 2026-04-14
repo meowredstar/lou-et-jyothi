@@ -45,9 +45,10 @@ script = ExtResource("1_0xm2m")
 player_scene = ExtResource("1_ig7tw")
 mob_scene = ExtResource("2_h2yge")
 tree_scene = ExtResource("4_7mycd")
-nb_mob = 0
-nb_player = 0
-nb_tree = 1000
+nb_mob = 25
+nb_player = 25
+fire_probability = 0.0
+rain_probability = 0.0
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1000984621]
 transform = Transform3D(1, 0, 0, 0, 0.25881907, 0.9659258, 0, -0.9659258, 0.25881907, 350, 256, 297)

@@ -11,6 +11,7 @@ extends CharacterBody3D
 @export var mutation_speed_multiplier := 1.2
 @export var mutation_reproduction_multiplier := 1.25
 @export var mutation_probability_on_reproduction := 0.2
+@export var mutation_probability_over_time := 0.001
 
 
 @export var step_height := 1
@@ -122,12 +123,19 @@ func _physics_process(delta):
 	
 	reproduction_timer -= delta
 	
+	if not mutated:
+		if randf() < mutation_probability_over_time:
+			mutate_prey()
+	
 	if reproduction_timer <= 0.0:
 		reproduction_timer = reproduction_interval
 		if randf() <= reproduction_chance and age >= reproduction_min_age:
 			var baby_mutated = false
-			if infected and randf() < mutation_probability_on_reproduction:
+			if mutated :
 				baby_mutated = true
+			elif infected and randf() < mutation_probability_on_reproduction:
+				baby_mutated = true
+			
 
 			reproduce_player.emit(global_position, baby_mutated)
 			
