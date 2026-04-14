@@ -33,11 +33,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 13.411627, 0)
 shape = SubResource("CylinderShape3D_nokgg")
 
 [node name="LifeExpectancy" type="Timer" parent="." unique_id=875142001]
-wait_time = 60.0
+wait_time = 4096.0
 autostart = true
 
 [node name="Starvation" type="Timer" parent="." unique_id=1081863328]
-wait_time = 61.851
+wait_time = 4096.0
 autostart = true
 
 [node name="StatusMarker" type="MeshInstance3D" parent="." unique_id=1140560841]

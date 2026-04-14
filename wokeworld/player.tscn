@@ -34,20 +34,21 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.5908, 0)
 shape = SubResource("CylinderShape3D_onrkg")
 
 [node name="LifeExpectancy" type="Timer" parent="." unique_id=1771713200]
-wait_time = 60.0
+wait_time = 4096.0
 autostart = true
 
-[node name="StatusMarker" type="MeshInstance3D" parent="." unique_id=1316240631]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 20.966648, 0)
+[node name="StatusMarker" type="MeshInstance3D" parent="." unique_id=2009216868]
 
-[node name="CSGCylinder3D" type="CSGCylinder3D" parent="StatusMarker" unique_id=1936122279]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5846577, 0)
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="StatusMarker" unique_id=1853653742]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 22.170984, 0)
+radius = 0.795
 height = 1.81
 cone = true
 smooth_faces = false
 
-[node name="CSGCylinder3D2" type="CSGCylinder3D" parent="StatusMarker" unique_id=2045998403]
-transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, -0.2063675, 0)
+[node name="CSGCylinder3D2" type="CSGCylinder3D" parent="StatusMarker" unique_id=905614908]
+transform = Transform3D(1, 0, 0, 0, -1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 20.363058, 0)
+radius = 0.795
 height = 1.81
 cone = true
 smooth_faces = false

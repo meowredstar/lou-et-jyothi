@@ -6,13 +6,15 @@ extends Node
 @export var nb_predator: int = 100
 @export var nb_prey: int = 100
 @export var nb_tree: int = 500
-@export var initial_infected_prey := 5 #permet de mettre en place le modèle SIR
+@export var initial_infected_prey := 35 #permet de mettre en place le modèle SIR
 @export var fire_probability = 0.25
 @export var rain_probability = 0.01
 @export var prob_tree_after_rain = 0.02
 
+var iteration = 0
 var manual = false
 var manual_rain = false
+var rain = false
 
 # terrain dimension
 var centre = Vector3(0, 0, 0)
@@ -195,12 +197,14 @@ func spawn_tree(spawn_point: Vector3) -> void:
 
 
 func start_rain():
+	rain = true
 	$CameraPivot/Camera3D/GPUParticles3D.emitting = true
 	$RainDuration.start()
 	$ExtinctFire.start()
 
 
 func _on_rain_duration_timeout() -> void:
+	rain = false
 	$RainDuration.stop()
 	$ExtinctFire.stop()
 	$CameraPivot/Camera3D/GPUParticles3D.emitting = false
@@ -221,6 +225,7 @@ func _on_extinct_fire_timeout() -> void:
 
 
 func _ready() -> void:
+	print("#iteration,nb_arbre,nb_arbre_en_feu,nb_predator,nb_infected_predator,nb_mutated_predator,nb_healed_predator,nb_prey,nb_infected_prey,nb_mutated_prey,is_raining")
 	var start_pos = $GridMap.local_to_map(centre-width)
 	var end_pos = $GridMap.local_to_map(centre+width)
 	var pos = Vector3i(start_pos.x, 0, start_pos.z)
@@ -477,6 +482,7 @@ func _ready() -> void:
 	preys.shuffle()
 	for i in range(min(initial_infected_prey, preys.size())): #j'infecte 5 joueurs au hasard, foyer de contamination
 		preys[i].infected = true
+		preys[i].add_to_group("infected_prey")
 		preys[i].update_visual()
 	
 	for i in range(nb_predator):
@@ -493,7 +499,15 @@ func _ready() -> void:
 	for i in range(nb_tree):
 		spawn_tree(Vector3(randf_range(centre.x-width.x, centre.x+width.x), 0,
 		randf_range(centre.z-width.z, centre.z+width.z)))
-
+	
+	var node_tree = get_tree()
+	var tree_fire = node_tree.get_nodes_in_group("burn").size()
+	var inf_pred = node_tree.get_nodes_in_group("infected_predator").size()
+	var mut_pred = node_tree.get_nodes_in_group("mutated_predator").size()
+	var heal_pred = node_tree.get_nodes_in_group("healed_predator").size()
+	var inf_prey = node_tree.get_nodes_in_group("infected_prey").size()
+	var mut_prey = node_tree.get_nodes_in_group("mutated_prey").size()
+	print(iteration,",",nb_tree,",",tree_fire,",",nb_predator,",",inf_pred,",",mut_pred,",",heal_pred,",",nb_prey,",",inf_prey,",",mut_prey,",",int(rain))
 
 func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("manual"):
@@ -512,3 +526,16 @@ func _process(_delta: float) -> void:
 
 	if not manual and randf() <= rain_probability:
 		start_rain()
+	
+	iteration+=1
+	var node_tree = get_tree()
+	var tree = node_tree.get_nodes_in_group("tree").size()
+	var tree_fire = node_tree.get_nodes_in_group("burn").size()
+	var pred = node_tree.get_nodes_in_group("predator").size()
+	var inf_pred = node_tree.get_nodes_in_group("infected_predator").size()
+	var mut_pred = node_tree.get_nodes_in_group("mutated_predator").size()
+	var heal_pred = node_tree.get_nodes_in_group("healed_predator").size()
+	var prey = node_tree.get_nodes_in_group("prey").size()
+	var inf_prey = node_tree.get_nodes_in_group("infected_prey").size()
+	var mut_prey = node_tree.get_nodes_in_group("mutated_prey").size()
+	print(iteration,",",tree,",",tree_fire,",",pred,",",inf_pred,",",mut_pred,",",heal_pred,",",prey,",",inf_prey,",",mut_prey,",",int(rain))

@@ -45,6 +45,7 @@ script = ExtResource("1_0xm2m")
 prey_scene = ExtResource("1_ig7tw")
 predator_scene = ExtResource("2_h2yge")
 tree_scene = ExtResource("4_7mycd")
+nb_tree = 650
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1000984621]
 transform = Transform3D(1, 0, 0, 0, 0.25881907, 0.9659258, 0, -0.9659258, 0.25881907, 350, 256, 297)

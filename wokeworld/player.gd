@@ -63,7 +63,7 @@ func mutate_prey():
 
 	if not infected:
 		infected = true
-
+	add_to_group("mutated_prey")
 	mutated = true
 	current_speed = int(current_speed * mutation_speed_multiplier)
 	reproduction_chance *= mutation_reproduction_multiplier
@@ -84,8 +84,8 @@ signal hit
 @export var min_turn_time = 0.4
 @export var max_turn_time = 1.2
 
-@export var reproduction_chance := 0.12
-@export var reproduction_interval := 10
+@export var reproduction_chance := 0.001
+@export var reproduction_interval := 0.02
 
 var reproduction_timer := 0.0
 
@@ -95,9 +95,7 @@ var area_width: Vector3
 var turn_timer = 0.0
 static var counter = 0
 
-@export var reproduction_min_age := 20.0 
 
-var age := 0.0
 
 
 func choose_random_direction(start_position, ground_center, ground_half_size):
@@ -118,8 +116,6 @@ signal reproduce_prey(position, baby_mutated)
 	
 func _physics_process(delta):
 	
-	age += delta
-	
 	
 	reproduction_timer -= delta
 	
@@ -129,7 +125,7 @@ func _physics_process(delta):
 	
 	if reproduction_timer <= 0.0:
 		reproduction_timer = reproduction_interval
-		if randf() <= reproduction_chance and age >= reproduction_min_age:
+		if randf() <= reproduction_chance:
 			var baby_mutated = false
 			if mutated :
 				baby_mutated = true

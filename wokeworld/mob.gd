@@ -143,13 +143,13 @@ enum HealthState {
 @export var mutation_speed_multiplier := 1.2
 @export var mutation_infection_radius := 6.0
 @export var normal_infection_radius := 4.0
-@export var mutation_death_probability := 0.5
+@export var mutation_death_probability := 0.005
 
 var health_state = HealthState.HEALTHY
 var infection_timer := 0.0
 @export var infection_duration := 10
 #@export var infection_chance := 1
-@export var death_probability := 0.4
+@export var death_probability := 0.0025
 
 
 # Emitted when the prey jumped on the predator.
@@ -159,6 +159,8 @@ var infection_timer := 0.0
 func infect(mutated := false):
 	if health_state != HealthState.HEALTHY:
 		return
+	
+	add_to_group("infected_predator")
 
 	if mutated:
 		health_state = HealthState.MUTATED
@@ -183,10 +185,13 @@ func update_infection(delta):
 
 	if infection_timer <= 0.0:
 		if health_state == HealthState.INFECTED and randf() < mutation_probability_on_recovery:
+			add_to_group("mutated_predator")
 			health_state = HealthState.MUTATED
 			current_speed = int(current_speed * mutation_speed_multiplier)
 			death_probability = mutation_death_probability
 		else:
+			remove_from_group("infected_predator")
+			add_to_group("healed_predator")
 			health_state = HealthState.RESISTANT
 
 			update_visual()
@@ -205,8 +210,11 @@ func infect_predators_on_contact():
 			continue
 		if body.health_state != HealthState.HEALTHY:
 			continue
-
-		if global_position.distance_to(body.global_position) < radius:
+		var other_pos = body.global_position
+		var predator_pos = global_position
+		other_pos.y = 0
+		predator_pos.y = 0
+		if predator_pos.distance_to(other_pos) < radius:
 			body.infect(health_state == HealthState.MUTATED)
 
 func choose_random_direction():
