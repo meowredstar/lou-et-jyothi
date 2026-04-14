@@ -72,12 +72,12 @@ func mutate_prey():
 func is_infected_prey() -> bool:
 	return infected
 	
-# Emitted when the player was hit by a mob.
+# Emitted when the prey was hit by a predator.
 signal hit
 @export var min_speed = 10
-# Maximum speed of the mob in meters per second.
+# Maximum speed of the predator in meters per second.
 @export var max_speed = 18
-# How fast the player moves in meters per second.
+# How fast the prey moves in meters per second.
 # The downward acceleration when in the air, in meters per second squared.
 @export var fall_acceleration = 75
 # Vertical impulse applied to the character upon jumping in meters per second.
@@ -114,7 +114,7 @@ func choose_random_direction(start_position, ground_center, ground_half_size):
 
 	turn_timer = randf_range(min_turn_time, max_turn_time)
 
-signal reproduce_player(position, baby_mutated)
+signal reproduce_prey(position, baby_mutated)
 	
 func _physics_process(delta):
 	
@@ -137,7 +137,7 @@ func _physics_process(delta):
 				baby_mutated = true
 			
 
-			reproduce_player.emit(global_position, baby_mutated)
+			reproduce_prey.emit(global_position, baby_mutated)
 			
 	turn_timer -= delta
 
@@ -147,8 +147,8 @@ func _physics_process(delta):
 
 
 	
-	for body in $MobDetector.get_overlapping_bodies():
-		if body.is_in_group("mob"):
+	for body in $PredatorDetector.get_overlapping_bodies():
+		if body.is_in_group("predator"):
 			var flee_direction = global_position - body.global_position
 			flee_direction.y = 0
 			flee_direction = flee_direction.normalized()
@@ -230,8 +230,8 @@ func die():
 	hit.emit()
 	# queue_free()
 
-#func _on_mob_detector_body_entered(body: Node3D) -> void:
-#	die()
+#func _on_predator_detector_body_entered(body: Node3D) -> void:
+	#die()
 
 
 func _on_life_expectancy_timeout() -> void:

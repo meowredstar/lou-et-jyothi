@@ -1,14 +1,15 @@
 extends Node
 
-@export var player_scene: PackedScene
-@export var mob_scene: PackedScene
+@export var prey_scene: PackedScene
+@export var predator_scene: PackedScene
 @export var tree_scene: PackedScene
-@export var nb_mob: int = 100
-@export var nb_player: int = 100
-@export var nb_tree: int = 10
+@export var nb_predator: int = 100
+@export var nb_prey: int = 100
+@export var nb_tree: int = 500
 @export var initial_infected_prey := 5 #permet de mettre en place le modèle SIR
 @export var fire_probability = 0.25
 @export var rain_probability = 0.01
+@export var prob_tree_after_rain = 0.02
 
 var manual = false
 var manual_rain = false
@@ -130,34 +131,34 @@ func perlin(x, y, z):
 	
 	return lerp(y1, y2, w)
 
-func _on_mob_reproduce_mob(position, baby_mutated):
-	var mob = mob_scene.instantiate()
-	add_child(mob)
+func _on_predator_reproduce_predator(position, baby_mutated):
+	var predator = predator_scene.instantiate()
+	add_child(predator)
 
 	var offset = Vector3(randf_range(-1,1), 0, randf_range(-1,1))
-	mob.initialize(position + offset, centre, width)
+	predator.initialize(position + offset, centre, width)
 
 	if baby_mutated:
-		mob.health_state = mob.HealthState.MUTATED
-		mob.current_speed = int(mob.current_speed * mob.mutation_speed_multiplier)
-		mob.death_probability = mob.mutation_death_probability
-		mob.infection_timer = mob.infection_duration
-		mob.update_visual()
+		predator.health_state = predator.HealthState.MUTATED
+		predator.current_speed = int(predator.current_speed * predator.mutation_speed_multiplier)
+		predator.death_probability = predator.mutation_death_probability
+		predator.infection_timer = predator.infection_duration
+		predator.update_visual()
 
-	mob.reproduce_mob.connect(_on_mob_reproduce_mob)
+	predator.reproduce_predator.connect(_on_predator_reproduce_predator)
 
-func _on_player_reproduce_player(position, baby_mutated):
-	var player = player_scene.instantiate()
-	add_child(player)
+func _on_prey_reproduce_prey(position, baby_mutated):
+	var prey = prey_scene.instantiate()
+	add_child(prey)
 
 	var offset = Vector3(randf_range(-1,1), 0, randf_range(-1,1))
 
 	if baby_mutated:
-		player.mutated = true
-		player.infected = true
+		prey.mutated = true
+		prey.infected = true
 
-	player.initialize(position + offset, centre, width)
-	player.reproduce_player.connect(_on_player_reproduce_player)
+	prey.initialize(position + offset, centre, width)
+	prey.reproduce_prey.connect(_on_prey_reproduce_prey)
 
 func type_of_cell(x: int, z: int):
 	match $GridMap.get_cell_item(Vector3i(x, 0, z)):
@@ -185,6 +186,14 @@ func get_nearest_global_pos_on_map(pos: Vector3):
 	return $GridMap.map_to_local($GridMap.local_to_map(pos))
 
 
+func spawn_tree(spawn_point: Vector3) -> void:                                                 
+		var tree = tree_scene.instantiate()
+		tree.position = get_nearest_global_pos_on_map(spawn_point)
+		add_child(tree)
+		if randf() <= fire_probability:
+			tree.set_on_fire()
+
+
 func start_rain():
 	$CameraPivot/Camera3D/GPUParticles3D.emitting = true
 	$RainDuration.start()
@@ -195,6 +204,13 @@ func _on_rain_duration_timeout() -> void:
 	$RainDuration.stop()
 	$ExtinctFire.stop()
 	$CameraPivot/Camera3D/GPUParticles3D.emitting = false
+	var start_pos = $GridMap.local_to_map(centre-width)
+	var end_pos = $GridMap.local_to_map(centre+width)
+	for x in range(start_pos.x, end_pos.x):
+		for z in range(start_pos.z, end_pos.z):
+			if randf() <= prob_tree_after_rain:
+				var pos = $GridMap.map_to_local(Vector3i(x, 0, z))
+				spawn_tree(pos)
 
 
 func _on_extinct_fire_timeout() -> void:
@@ -446,42 +462,37 @@ func _ready() -> void:
 				_:
 					printerr("Hauteur non prise en charge")
 	
-	var players = []
-	for i in range(nb_player):
-		var player = player_scene.instantiate()
+	var preys = []
+	for i in range(nb_prey):
+		var prey = prey_scene.instantiate()
 		var spawn_location = Vector3(
 			randf_range(centre.x-width.x,centre.x+width.x), 
 			10, 
 			randf_range(centre.z-width.z,centre.z+width.z)
 			)
-		player.reproduce_player.connect(_on_player_reproduce_player)
-		add_child(player)
-		player.initialize(spawn_location, centre, width)
-		players.append(player)
-	players.shuffle()
-	for i in range(min(initial_infected_prey, players.size())): #j'infecte 5 joueurs au hasard, foyer de contamination
-		players[i].infected = true
-		players[i].update_visual()
+		prey.reproduce_prey.connect(_on_prey_reproduce_prey)
+		add_child(prey)
+		prey.initialize(spawn_location, centre, width)
+		preys.append(prey)
+	preys.shuffle()
+	for i in range(min(initial_infected_prey, preys.size())): #j'infecte 5 joueurs au hasard, foyer de contamination
+		preys[i].infected = true
+		preys[i].update_visual()
 	
-	for i in range(nb_mob):
-		var mob = mob_scene.instantiate()
+	for i in range(nb_predator):
+		var predator = predator_scene.instantiate()
 		var spawn_location = Vector3(
 			randf_range(centre.x-width.x,centre.x+width.x), 
 			10, 
 			randf_range(centre.z-width.z,centre.z+width.z)
 			)
-		mob.reproduce_mob.connect(_on_mob_reproduce_mob)
-		add_child(mob)
-		mob.initialize(spawn_location, centre, width)
+		predator.reproduce_predator.connect(_on_predator_reproduce_predator)
+		add_child(predator)
+		predator.initialize(spawn_location, centre, width)
 	
 	for i in range(nb_tree):
-		var tree = tree_scene.instantiate()
-		tree.position = get_nearest_global_pos_on_map(Vector3(randf_range(
-		centre.x-width.x, centre.x+width.x), 0, randf_range(centre.z-width.z,
-		centre.z+width.z)))
-		add_child(tree)
-		if randf() <= fire_probability:
-			tree.set_on_fire()
+		spawn_tree(Vector3(randf_range(centre.x-width.x, centre.x+width.x), 0,
+		randf_range(centre.z-width.z, centre.z+width.z)))
 
 
 func _process(_delta: float) -> void:

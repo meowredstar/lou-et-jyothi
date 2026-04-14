@@ -2,9 +2,9 @@ extends CharacterBody3D
 
 @export var fall_acceleration := 75.0
 
-# Minimum speed of the mob in meters per second.
+# Minimum speed of the predator in meters per second.
 @export var min_speed = 10
-# Maximum speed of the mob in meters per second.
+# Maximum speed of the predator in meters per second.
 @export var max_speed = 18
 
 @onready var top = $StatusMarker/CSGCylinder3D
@@ -36,11 +36,11 @@ func pick_prey_target() -> void:
 	for body in $PreyDetector.get_overlapping_bodies():
 		if body.is_in_group("prey"):
 			var prey_pos = body.global_position
-			var mob_pos = global_position
+			var predator_pos = global_position
 			prey_pos.y = 0
-			mob_pos.y = 0
+			predator_pos.y = 0
 
-			var dist = mob_pos.distance_to(prey_pos)
+			var dist = predator_pos.distance_to(prey_pos)
 			if dist < closest_dist:
 				closest_dist = dist
 				closest_prey = body
@@ -64,11 +64,11 @@ func chase_target_prey() -> void:
 		velocity.z = chase_dir.z * current_speed
 
 	var prey_pos = target_prey.global_position
-	var mob_pos = global_position
+	var predator_pos = global_position
 	prey_pos.y = 0
-	mob_pos.y = 0
+	predator_pos.y = 0
 
-	if mob_pos.distance_to(prey_pos) < eat_distance:
+	if predator_pos.distance_to(prey_pos) < eat_distance:
 		eat_prey(target_prey)
 		target_prey = null
 
@@ -95,7 +95,7 @@ func try_step_up(delta: float) -> bool:
 
 
 func _ready():
-	add_to_group("mob")
+	add_to_group("predator")
 
 func set_color(color: Color):
 	var mat := StandardMaterial3D.new()
@@ -149,10 +149,10 @@ var health_state = HealthState.HEALTHY
 var infection_timer := 0.0
 @export var infection_duration := 10
 #@export var infection_chance := 1
-@export var death_probability := 0.3
+@export var death_probability := 0.4
 
 
-# Emitted when the player jumped on the mob.
+# Emitted when the prey jumped on the predator.
 #signal squashed
 
 
@@ -176,17 +176,18 @@ func update_infection(delta):
 		return
 
 	infection_timer -= delta
+	
+	if randf() < death_probability:
+			queue_free()
+			return
 
 	if infection_timer <= 0.0:
-		if randf() < death_probability:
-			queue_free()
+		if health_state == HealthState.INFECTED and randf() < mutation_probability_on_recovery:
+			health_state = HealthState.MUTATED
+			current_speed = int(current_speed * mutation_speed_multiplier)
+			death_probability = mutation_death_probability
 		else:
-			if health_state == HealthState.INFECTED and randf() < mutation_probability_on_recovery:
-				health_state = HealthState.MUTATED
-				current_speed = int(current_speed * mutation_speed_multiplier)
-				death_probability = mutation_death_probability
-			else:
-				health_state = HealthState.RESISTANT
+			health_state = HealthState.RESISTANT
 
 			update_visual()
 			
@@ -199,7 +200,7 @@ func infect_predators_on_contact():
 	if health_state == HealthState.MUTATED:
 		radius = mutation_infection_radius
 
-	for body in get_tree().get_nodes_in_group("mob"):
+	for body in get_tree().get_nodes_in_group("predator"):
 		if body == self:
 			continue
 		if body.health_state != HealthState.HEALTHY:
@@ -221,7 +222,7 @@ func choose_random_direction():
 
 	turn_timer = randf_range(min_turn_time, max_turn_time)
 
-signal reproduce_mob(position, baby_mutated)
+signal reproduce_predator(position, baby_mutated)
 
 
 
@@ -243,7 +244,7 @@ func _physics_process(_delta):
 				if randf() < mutation_probability_on_reproduction:
 					baby_mutated = true
 
-			reproduce_mob.emit(global_position, baby_mutated)
+			reproduce_predator.emit(global_position, baby_mutated)
 	
 	turn_timer -= _delta
 	if target_prey == null:
@@ -303,8 +304,8 @@ func _physics_process(_delta):
 func initialize(start_position, area_cente, area_widt):
 	area_center = area_cente
 	area_width = area_widt
-	# We position the mob by placing it at start_position
-	# and rotate it towards player_position, so it looks at the player.
+	# We position the predator by placing it at start_position
+	# and rotate it towards prey_position, so it looks at the prey.
 	
 	var target = Vector3(
 		randf_range(area_center.x - area_width.x, area_center.x + area_width.x),
@@ -323,8 +324,8 @@ func initialize(start_position, area_cente, area_widt):
 	
 	
 	update_visual()
-	# Rotate this mob randomly within range of -45 and +45 degrees,
-	# so that it doesn't move directly towards the player.
+	# Rotate this predator randomly within range of -45 and +45 degrees,
+	# so that it doesn't move directly towards the prey.
 	# rotate_y(randf_range(-PI / 4, PI / 4))
 
 	# We calculate a random speed (integer)
@@ -335,8 +336,8 @@ func initialize(start_position, area_cente, area_widt):
 	# We calculate a forward velocity that represents the speed.
 	velocity = Vector3.FORWARD * current_speed
 	#print("object : ", self, "avant : ", velocity)
-	# We then rotate the velocity vector based on the mob's Y rotation
-	# in order to move in the direction the mob is looking.
+	# We then rotate the velocity vector based on the predator's Y rotation
+	# in order to move in the direction the predator is looking.
 	velocity = velocity.rotated(Vector3.UP, rotation.y)
 	#print("après : ", velocity)
 

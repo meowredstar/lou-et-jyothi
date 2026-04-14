@@ -23,13 +23,13 @@ transform = Transform3D(-10, 0, -8.742278e-07, 0, 10, 0, 8.742278e-07, 0, -10, 0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.24349451, 8.653183, -0.40772188)
 shape = SubResource("BoxShape3D_onrkg")
 
-[node name="MobDetector" type="Area3D" parent="." unique_id=432094374]
+[node name="PredatorDetector" type="Area3D" parent="." unique_id=432094374]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.19833505, 0)
 collision_layer = 0
 collision_mask = 2
 monitorable = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MobDetector" unique_id=1363175622]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PredatorDetector" unique_id=1363175622]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.5908, 0)
 shape = SubResource("CylinderShape3D_onrkg")
 
@@ -52,5 +52,5 @@ height = 1.81
 cone = true
 smooth_faces = false
 
-[connection signal="body_entered" from="MobDetector" to="." method="_on_mob_detector_body_entered"]
+[connection signal="body_entered" from="PredatorDetector" to="." method="_on_predator_detector_body_entered"]
 [connection signal="timeout" from="LifeExpectancy" to="." method="_on_life_expectancy_timeout"]
