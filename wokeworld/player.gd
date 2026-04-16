@@ -139,6 +139,7 @@ func _physics_process(delta):
 
 	if turn_timer <= 0:
 		choose_random_direction(global_position, area_center, area_width)
+		turn_timer += 2*delta
 
 
 	for body in $PredatorDetector.get_overlapping_bodies():
