@@ -81,7 +81,7 @@ signal hit
 # The downward acceleration when in the air, in meters per second squared.
 @export var fall_acceleration = 75
 # Vertical impulse applied to the character upon jumping in meters per second.
-@export var min_turn_time = 0.4
+@export var min_turn_time = 1.0
 @export var max_turn_time = 1.2
 
 @export var reproduction_chance := 0.001
@@ -141,9 +141,21 @@ func _physics_process(delta):
 		choose_random_direction(global_position, area_center, area_width)
 
 
-
-	
 	for body in $PredatorDetector.get_overlapping_bodies():
+		if body.is_in_group("burn"):
+			if randf() <= 0.001 :
+				queue_free()
+				break
+			else :
+				var flee_direction = global_position - body.global_position
+				flee_direction.y = 0
+				flee_direction = flee_direction.normalized()
+
+				if flee_direction.length() > 0.001:
+					look_at(global_position + flee_direction, Vector3.UP)
+					velocity.x = flee_direction.x * current_speed
+					velocity.z = flee_direction.z * current_speed
+				break
 		if body.is_in_group("predator"):
 			var flee_direction = global_position - body.global_position
 			flee_direction.y = 0
